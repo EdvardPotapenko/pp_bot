@@ -62,7 +62,7 @@ namespace pp_bot.bot.chat_actions.commands
 
             topFifteen.ForEach((user) =>
             {
-                scoreMessage += $"🍆 <a href=\"tg://user?id={user.TelegramId}\">{user.Username}</a> - {user.PPLength}см\n";
+                scoreMessage += $"🍆 {user.Username} - {user.PPLength}см\n";
             });
 
             await _Client.SendTextMessageAsync(
