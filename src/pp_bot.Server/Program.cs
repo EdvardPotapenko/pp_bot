@@ -17,8 +17,9 @@ namespace pp_bot.Server
                     var config = context.Configuration;
                     services.AddSingleton<ITelegramBotClient>(
                         new TelegramBotClient(config["BOT_TOKEN"]));
-                });
-            //await host.RunConsoleAsync();
+                })
+                .Build();
+            //await host.RunAsync();
             
             var bot = new BotStarter();
             bot.Start();
