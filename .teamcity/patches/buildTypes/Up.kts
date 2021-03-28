@@ -35,5 +35,19 @@ changeBuildType(RelativeId("Up")) {
                 """.trimIndent())
             }
         }
+        insert(2) {
+            step {
+                name = "Production database settings"
+                type = "MRPP_CreateTextFile2"
+                param("system.dest.file", "%teamcity.build.checkoutDir%/src/pp_bot.Server/dbsettings.Production.json")
+                param("content", """
+                    {
+                        "ConnectionStrings": {
+                            "DB_CONN_STR": "Host=pp_bot_postgres;Port=5432;UserId=pp_bot;Password=%env.POSTGRES_PASSWORD%;Database=pp_bot;CommandTimeout=300;"
+                        }
+                    }
+                """.trimIndent())
+            }
+        }
     }
 }
