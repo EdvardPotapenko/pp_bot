@@ -10,9 +10,9 @@ namespace pp_bot.model
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            string connection = Environment.GetEnvironmentVariable("SQL_CONNECTION");
+            string connection = Environment.GetEnvironmentVariable("PP_BOT_DB_CONNECTION");
             Console.WriteLine("connection " + connection);
-            optionsBuilder.UseSqlServer(connection);
+            optionsBuilder.UseNpgsql(connection);
         }
     }
 }

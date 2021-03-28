@@ -9,7 +9,8 @@ namespace pp_bot
             var bot = new BotStarter();
             bot.Start();
             Console.WriteLine("receiving...");
-            while(true){
+            while (true)
+            {
                 Thread.Sleep(100);
             }
         }
