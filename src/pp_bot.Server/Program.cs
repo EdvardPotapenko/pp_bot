@@ -1,11 +1,25 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Telegram.Bot;
+
 namespace pp_bot.Server
 {
-    class Program
+    internal static class Program
     {
-        static void Main(string[] args)
+        private static async Task Main()
         {
+            var host = new HostBuilder()
+                .ConfigureServices((context, services) =>
+                {
+                    var config = context.Configuration;
+                    services.AddSingleton<ITelegramBotClient>(
+                        new TelegramBotClient(config["BOT_TOKEN"]));
+                });
+            //await host.RunConsoleAsync();
+            
             var bot = new BotStarter();
             bot.Start();
             Console.WriteLine("receiving...");
