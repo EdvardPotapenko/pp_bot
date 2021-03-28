@@ -59,10 +59,7 @@ changeBuildType(RelativeId("Up")) {
                 """.trimIndent())
             }
         }
-        update<ExecBuildStep>(2) {
-            clearConditions()
-        }
-        insert(3) {
+        insert(2) {
             step {
                 name = "Production bot settings"
                 type = "MRPP_CreateTextFile2"
@@ -73,6 +70,9 @@ changeBuildType(RelativeId("Up")) {
                     }
                 """.trimIndent())
             }
+        }
+        update<ExecBuildStep>(3) {
+            clearConditions()
         }
     }
 }
