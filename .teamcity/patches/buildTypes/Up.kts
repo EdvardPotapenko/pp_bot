@@ -1,6 +1,7 @@
 package patches.buildTypes
 
 import jetbrains.buildServer.configs.kotlin.v2018_1.*
+import jetbrains.buildServer.configs.kotlin.v2018_1.buildSteps.ExecBuildStep
 import jetbrains.buildServer.configs.kotlin.v2018_1.buildSteps.exec
 import jetbrains.buildServer.configs.kotlin.v2018_1.ui.*
 
@@ -54,6 +55,21 @@ changeBuildType(RelativeId("Up")) {
                         "ConnectionStrings": {
                             "DB_CONN_STR": "Host=pp_bot_postgres;Port=5432;UserId=pp_bot;Password=%env.POSTGRES_PASSWORD%;Database=pp_bot;CommandTimeout=300;"
                         }
+                    }
+                """.trimIndent())
+            }
+        }
+        update<ExecBuildStep>(2) {
+            clearConditions()
+        }
+        insert(3) {
+            step {
+                name = "Production bot settings"
+                type = "MRPP_CreateTextFile2"
+                param("system.dest.file", "%teamcity.build.checkoutDir%/src/pp_bot.Server/botsettings.Production.json")
+                param("content", """
+                    {
+                        "BOT_TOKEN": "%env.BOT_TOKEN%"
                     }
                 """.trimIndent())
             }
