@@ -1,11 +1,12 @@
 using System;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using pp_bot.Server.Models;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using Microsoft.EntityFrameworkCore;
-using pp_bot.Server.model;
+using Chat = pp_bot.Server.Models.Chat;
 
-namespace pp_bot.Server.bot.chat_actions.commands
+namespace pp_bot.Server.Сommands
 {
     public class UserAPI
     {
@@ -70,7 +71,7 @@ namespace pp_bot.Server.bot.chat_actions.commands
 
         public async Task HandleChatBindingAsync(BotUser user, Message message)
         {
-            model.Chat? chat = await this.GetChatAsync(message);
+            Chat? chat = await this.GetChatAsync(message);
 
             if (chat == null)
             {
@@ -83,21 +84,21 @@ namespace pp_bot.Server.bot.chat_actions.commands
                 await this.BindUserAndChatAsync(chat, user);
         }
 
-        public async Task<model.Chat?> GetChatAsync(Message message)
+        public async Task<Chat?> GetChatAsync(Message message)
         {
             return await _Context.Chats.Include(c => c.ChatUsers).FirstOrDefaultAsync(chat => chat.ChatId == message.Chat.Id);
         }
 
-        public async Task BindUserAndChatAsync(model.Chat chat, BotUser user)
+        public async Task BindUserAndChatAsync(Chat chat, BotUser user)
         {
             chat.ChatUsers.Add(user);
             user.UserChats.Add(chat);
             await _Context.SaveChangesAsync();
         }
 
-        public async Task<model.Chat> CreateNewChatAsync(Message message)
+        public async Task<Chat> CreateNewChatAsync(Message message)
         {
-            model.Chat chat = new model.Chat()
+            Chat chat = new Chat()
             {
                 ChatId = message.Chat.Id,
                 ChatName = message.Chat.Title

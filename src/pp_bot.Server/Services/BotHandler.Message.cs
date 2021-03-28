@@ -8,7 +8,7 @@ namespace pp_bot.Server.Services
     {
         private async Task HandleMessageAsync(Message m, CancellationToken ct)
         {
-            await Task.Yield();
+            await _commandPatternManager.HandleCommandAsync(m, ct);
         }
     }
 }

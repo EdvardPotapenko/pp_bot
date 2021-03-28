@@ -11,10 +11,12 @@ namespace pp_bot.Server.Services
     public sealed partial class BotHandler : IUpdateHandler
     {
         private readonly ITelegramBotClient _client;
+        private readonly CommandPatternManager _commandPatternManager;
 
-        public BotHandler(ITelegramBotClient client)
+        public BotHandler(ITelegramBotClient client, CommandPatternManager commandPatternManager)
         {
             _client = client;
+            _commandPatternManager = commandPatternManager;
         }
 
         public async Task HandleUpdate(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)

@@ -1,10 +1,11 @@
+using System;
+using System.Threading;
 using System.Threading.Tasks;
+using pp_bot.Server.Models;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using System;
-using pp_bot.Server.model;
 
-namespace pp_bot.Server.bot.chat_actions.commands
+namespace pp_bot.Server.Сommands
 {
 
     public class LeaveGameCommand : IChatAction
@@ -29,7 +30,7 @@ namespace pp_bot.Server.bot.chat_actions.commands
                    message.Text == _CommandName + _BotName;
         }
 
-        public async Task Execute(Message message)
+        public async Task ExecuteAsync(Message message, CancellationToken ct)
         {
             if (message.Chat.Id > 0)
                 return;

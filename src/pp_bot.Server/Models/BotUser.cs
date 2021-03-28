@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace pp_bot.Server.model {
+namespace pp_bot.Server.Models {
     public class BotUser {
         public int Id{get;init;}
         public string Username{get;set;}
