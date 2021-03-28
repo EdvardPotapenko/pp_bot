@@ -15,3 +15,7 @@ docker-compose.debug.yml
 Migrations/
 bin/
 obj/
+
+.tmp/
+.idea/
+.vs/
