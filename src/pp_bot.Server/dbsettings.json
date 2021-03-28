@@ -1,0 +1,5 @@
+﻿{
+    "ConnectionStrings": {
+        "DB_CONN_STR": "Host=pp_bot_postgres;Port=5432;UserId=pp_bot;Password=_PP_IS_C23;Database=pp_bot;CommandTimeout=300;"
+    }
+}
