@@ -1,11 +1,11 @@
 using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using pp_bot.model;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using pp_bot.Server.model;
 
-namespace pp_bot.bot.chat_actions.commands
+namespace pp_bot.Server.bot.chat_actions.commands
 {
 
     public class ShowScoreCommand : IChatAction

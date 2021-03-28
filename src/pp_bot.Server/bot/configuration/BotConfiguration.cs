@@ -1,12 +1,12 @@
 using System;
-using pp_bot.bot.chat_actions;
 using System.Collections.Generic;
 using Telegram.Bot.Args;
 using Telegram.Bot;
-using pp_bot.bot.chat_actions.commands;
-using pp_bot.model;
+using pp_bot.Server.bot.chat_actions;
+using pp_bot.Server.bot.chat_actions.commands;
+using pp_bot.Server.model;
 
-namespace pp_bot.bot.configuration
+namespace pp_bot.Server.bot.configuration
 {
     public class BotConfiguration
     {

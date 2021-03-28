@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using System;
 
-namespace pp_bot.model
+namespace pp_bot.Server.model
 {
     public class PP_Context : DbContext
     {

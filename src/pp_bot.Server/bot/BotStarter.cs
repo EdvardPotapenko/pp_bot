@@ -1,12 +1,12 @@
 using System;
 using Telegram.Bot;
-using pp_bot.bot.configuration;
-using pp_bot.model;
 using Microsoft.EntityFrameworkCore;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
 using System.Linq;
+using pp_bot.Server.bot.configuration;
+using pp_bot.Server.model;
 
-namespace pp_bot
+namespace pp_bot.Server
 {
     public class BotStarter
     {

@@ -1,27 +1,49 @@
+version: '3.8'
 
-version: '3.4'
+x-restart-policy: &restart_policy
+  restart: unless-stopped
+
+x-host-config: &host_config
+  environment:
+    - ASPNETCORE_ENVIRONMENT=Development
+    - ASPNETCORE_URLS=http://+:80
+  ports:
+    - "5004:80"
 
 services:
   ppbot:
+    <<: *restart_policy
+    <<: *host_config
     depends_on:
       - postgres
     container_name: pp_bot_app
-    image: ppbot
+    image: ppbot/host:latest
     environment:
       - BOT_KEY=yourkeyhere
       - DEV_KEY=yourdevkeyhere
     build:
       context: .
-      dockerfile: src/Dockerfile
-  
+      dockerfile: pp_bot.Server/Dockerfile
+    networks:
+      - ppbot_network
+
   postgres:
     container_name: pp_bot_postgres
     image: postgres:12.4
-    ports:
-    - "5432:5432"
     environment:
       - POSTGRES_USER=pp_bot
       - POSTGRES_DB=pp_bot
       - POSTGRES_PASSWORD=_PP_IS_C23
     command: ["-c", "shared_buffers=512MB", "-c", "max_connections=500"]
+    networks:
+      - ppbot_network
+    volumes:
+      - ppbot_volume:/var/lib/postgresql/data
 
+volumes:
+  ppbot_volume:
+    name: ppbot_volume
+
+networks:
+  ppbot_network:
+    name: ppbot_network

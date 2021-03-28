@@ -1,11 +1,11 @@
 using System;
 using System.Threading.Tasks;
-using pp_bot.model;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Microsoft.EntityFrameworkCore;
+using pp_bot.Server.model;
 
-namespace pp_bot.bot.chat_actions.commands
+namespace pp_bot.Server.bot.chat_actions.commands
 {
     public class UserAPI
     {

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace pp_bot.model {
+namespace pp_bot.Server.model {
     public class Chat {
         public int Id{get;init;}
         public long ChatId {get;init;}
