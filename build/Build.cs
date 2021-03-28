@@ -15,7 +15,8 @@ using static Nuke.Common.Tools.DotNet.DotNetTasks;
 [TeamCity(TeamCityAgentPlatform.Unix,
     NonEntryTargets = new[] {nameof(Restore)},
     ExcludedTargets = new[] {nameof(Clean)},
-    VcsTriggeredTargets = new[] {nameof(Compile), nameof(Up)})]
+    VcsTriggeredTargets = new[] {nameof(Compile), nameof(Up)},
+    Version = "2020.2")]
 class Build : NukeBuild
 {
     /// Support plugins are available for:
