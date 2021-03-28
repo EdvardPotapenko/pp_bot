@@ -9,6 +9,7 @@ using pp_bot.Server.Services;
 using pp_bot.Server.Сommands;
 using Telegram.Bot;
 using Telegram.Bot.Extensions.Polling;
+// ReSharper disable MethodHasAsyncOverload
 
 namespace pp_bot.Server
 {
@@ -48,6 +49,14 @@ namespace pp_bot.Server
                     }
                 })
                 .Build();
+            
+            using (var scope = host.Services.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<PP_Context>();
+                if (context.Database.GetPendingMigrations().Any())
+                    context.Database.Migrate();
+            }
+            
             await host.RunAsync();
         }
     }
