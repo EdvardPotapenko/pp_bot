@@ -19,3 +19,4 @@ obj/
 .tmp/
 .idea/
 .vs/
+botsettings.*.json
