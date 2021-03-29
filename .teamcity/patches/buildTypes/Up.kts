@@ -60,7 +60,7 @@ changeBuildType(RelativeId("Up")) {
                 param("content", """
                     {
                         "ConnectionStrings": {
-                            "DB_CONN_STR": "Host=pp_bot_postgres;Port=5432;UserId=pp_bot;Password=%env.POSTGRES_PASSWORD%;Database=pp_bot;CommandTimeout=300;"
+                            "DB_CONN_STR": "Host=postgres;Port=5432;UserId=pp_bot;Password=%env.POSTGRES_PASSWORD%;Database=pp_bot;CommandTimeout=300;"
                         }
                     }
                 """.trimIndent())
