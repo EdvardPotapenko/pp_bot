@@ -12,11 +12,14 @@ namespace pp_bot.Server.Services
     {
         private readonly ITelegramBotClient _client;
         private readonly CommandPatternManager _commandPatternManager;
+        private readonly IAchievementManager _achievementManager;
 
-        public BotHandler(ITelegramBotClient client, CommandPatternManager commandPatternManager)
+        public BotHandler(ITelegramBotClient client, CommandPatternManager commandPatternManager,
+            IAchievementManager achievementManager)
         {
             _client = client;
             _commandPatternManager = commandPatternManager;
+            _achievementManager = achievementManager;
         }
 
         public async Task HandleUpdate(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
