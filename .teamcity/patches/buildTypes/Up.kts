@@ -19,7 +19,7 @@ changeBuildType(RelativeId("Up")) {
             password("env.BOT_TOKEN", "credentialsJSON:2621532b-400f-4938-886a-415e4adad6e5", display = ParameterDisplay.HIDDEN)
         }
         add {
-            password("env.POSTGRES_PASSWORD", "credentialsJSON:5855d4d5-c1de-4d3d-849f-8ba2b77beffd", display = ParameterDisplay.HIDDEN, readOnly = true)
+            password("env.POSTGRES_PASSWORD", "credentialsJSON:1d8a8697-9e46-47f3-b791-41f5da0acf58", display = ParameterDisplay.HIDDEN)
         }
     }
 
@@ -36,15 +36,19 @@ changeBuildType(RelativeId("Up")) {
                 type = "MRPP_CreateTextFile2"
                 param("system.dest.file", "%teamcity.build.checkoutDir%/src/docker-compose.override.yml")
                 param("content", """
-                    version: '3.7'
+                    version: '3.8'
                     
                     services:
                       ppbot:
                         environment:
                           - ASPNETCORE_ENVIRONMENT=%env.ASPNETCORE_ENVIRONMENT%
-                      postgres:
-                        environment:
-                          - POSTGRES_PASSWORD=%env.POSTGRES_PASSWORD%
+                        networks:
+                          - pp_bot_network
+                    
+                    networks:
+                      pp_bot_network:
+                        external:
+                          name: postgres_network
                 """.trimIndent())
             }
         }
@@ -56,7 +60,7 @@ changeBuildType(RelativeId("Up")) {
                 param("content", """
                     {
                         "ConnectionStrings": {
-                            "DB_CONN_STR": "Host=pp_bot_postgres;Port=5432;UserId=pp_bot;Password=%env.POSTGRES_PASSWORD%;Database=pp_bot;CommandTimeout=300;"
+                            "DB_CONN_STR": "Host=postgres;Port=5432;UserId=pp_bot;Password=%env.POSTGRES_PASSWORD%;Database=pp_bot;CommandTimeout=300;"
                         }
                     }
                 """.trimIndent())
