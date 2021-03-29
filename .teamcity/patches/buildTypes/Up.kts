@@ -1,6 +1,7 @@
 package patches.buildTypes
 
 import jetbrains.buildServer.configs.kotlin.v2018_1.*
+import jetbrains.buildServer.configs.kotlin.v2018_1.buildSteps.ExecBuildStep
 import jetbrains.buildServer.configs.kotlin.v2018_1.buildSteps.exec
 import jetbrains.buildServer.configs.kotlin.v2018_1.ui.*
 
@@ -13,6 +14,9 @@ changeBuildType(RelativeId("Up")) {
     params {
         add {
             text("env.ASPNETCORE_ENVIRONMENT", "Production", allowEmpty = false)
+        }
+        add {
+            password("env.BOT_TOKEN", "credentialsJSON:2621532b-400f-4938-886a-415e4adad6e5", display = ParameterDisplay.HIDDEN)
         }
         add {
             password("env.POSTGRES_PASSWORD", "credentialsJSON:5855d4d5-c1de-4d3d-849f-8ba2b77beffd", display = ParameterDisplay.HIDDEN, readOnly = true)
@@ -57,6 +61,21 @@ changeBuildType(RelativeId("Up")) {
                     }
                 """.trimIndent())
             }
+        }
+        insert(2) {
+            step {
+                name = "Production bot settings"
+                type = "MRPP_CreateTextFile2"
+                param("system.dest.file", "%teamcity.build.checkoutDir%/src/pp_bot.Server/botsettings.Production.json")
+                param("content", """
+                    {
+                        "BOT_TOKEN": "%env.BOT_TOKEN%"
+                    }
+                """.trimIndent())
+            }
+        }
+        update<ExecBuildStep>(3) {
+            clearConditions()
         }
     }
 }

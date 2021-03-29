@@ -1,0 +1,26 @@
+
+version: '3.4'
+
+services:
+  ppbot:
+    depends_on:
+      - postgres
+    container_name: pp_bot_app
+    image: ppbot
+    build:
+      context: .
+      dockerfile: src/Dockerfile
+    volumes:
+      - ~/.vsdbg:/remote_debugger:rw
+
+  postgres:
+    container_name: pp_bot_postgres
+    image: postgres:12.4
+    ports:
+    - "5432:5432"
+    environment:
+      - POSTGRES_USER=pp_bot
+      - POSTGRES_DB=pp_bot
+      - POSTGRES_PASSWORD=_PP_IS_C23
+    command: ["-c", "shared_buffers=512MB", "-c", "max_connections=500"]
+
