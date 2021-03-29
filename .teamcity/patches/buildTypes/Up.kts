@@ -36,7 +36,7 @@ changeBuildType(RelativeId("Up")) {
                 type = "MRPP_CreateTextFile2"
                 param("system.dest.file", "%teamcity.build.checkoutDir%/src/docker-compose.override.yml")
                 param("content", """
-                    version: '3.7'
+                    version: '3.8'
                     
                     services:
                       ppbot:
