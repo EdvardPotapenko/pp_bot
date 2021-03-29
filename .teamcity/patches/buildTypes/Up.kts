@@ -16,7 +16,7 @@ changeBuildType(RelativeId("Up")) {
             text("env.ASPNETCORE_ENVIRONMENT", "Production", allowEmpty = false)
         }
         add {
-            password("env.BOT_TOKEN", "credentialsJSON:2621532b-400f-4938-886a-415e4adad6e5", display = ParameterDisplay.HIDDEN)
+            password("env.BOT_TOKEN", "credentialsJSON:4c089484-9725-4e67-be7b-f2ca8e10dac9", display = ParameterDisplay.HIDDEN)
         }
         add {
             password("env.POSTGRES_PASSWORD", "credentialsJSON:1d8a8697-9e46-47f3-b791-41f5da0acf58", display = ParameterDisplay.HIDDEN)
