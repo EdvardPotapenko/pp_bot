@@ -15,9 +15,6 @@ services:
       - postgres
     container_name: pp_bot_app
     image: ppbot/host:latest
-    environment:
-      - BOT_KEY=yourkeyhere
-      - DEV_KEY=yourdevkeyhere
     build:
       context: .
       dockerfile: pp_bot.Server/Dockerfile

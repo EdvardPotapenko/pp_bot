@@ -20,7 +20,7 @@ namespace pp_bot.Server
             var host = new HostBuilder()
                 .ConfigureHostConfiguration(builder =>
                 {
-                    builder.AddEnvironmentVariables();
+                    builder.AddEnvironmentVariables("ASPNETCORE_");
                 })
                 .ConfigureAppConfiguration((context, builder) =>
                 {
@@ -43,7 +43,7 @@ namespace pp_bot.Server
                         .UseNpgsql(config.GetConnectionString("DB_CONN_STR")));
 
                     var baseType = typeof(IChatAction);
-                    foreach (var commandType in baseType.Assembly.GetTypes().Where(t => baseType.IsAssignableFrom(t)))
+                    foreach (var commandType in baseType.Assembly.GetTypes().Where(t => baseType.IsAssignableFrom(t) && t.IsClass && t.IsPublic && !t.IsAbstract))
                     {
                         services.AddScoped(baseType, commandType);
                     }
