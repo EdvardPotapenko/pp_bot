@@ -19,7 +19,7 @@ changeBuildType(RelativeId("Up")) {
             password("env.BOT_TOKEN", "credentialsJSON:2621532b-400f-4938-886a-415e4adad6e5", display = ParameterDisplay.HIDDEN)
         }
         add {
-            password("env.POSTGRES_PASSWORD", "credentialsJSON:5855d4d5-c1de-4d3d-849f-8ba2b77beffd", display = ParameterDisplay.HIDDEN, readOnly = true)
+            password("env.POSTGRES_PASSWORD", "credentialsJSON:5855d4d5-c1de-4d3d-849f-8ba2b77beffd", display = ParameterDisplay.HIDDEN)
         }
     }
 
