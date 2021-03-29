@@ -42,9 +42,13 @@ changeBuildType(RelativeId("Up")) {
                       ppbot:
                         environment:
                           - ASPNETCORE_ENVIRONMENT=%env.ASPNETCORE_ENVIRONMENT%
-                      postgres:
-                        environment:
-                          - POSTGRES_PASSWORD=%env.POSTGRES_PASSWORD%
+                        networks:
+                          - pp_bot_network
+                    
+                    networks:
+                      pp_bot_network:
+                        external:
+                          name: postgres_network
                 """.trimIndent())
             }
         }
