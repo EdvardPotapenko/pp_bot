@@ -1,6 +1,11 @@
 # pp_bot
 ## open source telegram bot for growing your pp
 
+This project is powered by ASP.NET Core 5.
+
+**Build statuses**
+![TeamCity Debian](https://img.shields.io/teamcity/build/s/PpBot_Compile?server=https%3A%2F%2Ftc.vova-lantsov.dev&style=for-the-badge)
+
 > Sometimes **we all just need** our ego to **GROW** - so what a better way you can achieve this - than growing your virtual pp with this *brand new open source c# .net core telegram bot.*
 
 Not to mention, we are working to make this dude [GDPR](https://en.wikipedia.org/wiki/General_Data_Protection_Regulation) compliant!
