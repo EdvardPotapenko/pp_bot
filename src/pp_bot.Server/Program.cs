@@ -35,6 +35,7 @@ namespace pp_bot.Server
                 {
                     var config = context.Configuration;
                     services.AddSingleton<CommandPatternManager>();
+                    services.AddSingleton<IAchievementManager, AchievementManager>();
                     services.AddSingleton<ITelegramBotClient>(
                         new TelegramBotClient(config["BOT_TOKEN"]));
                     services.AddSingleton<IUpdateHandler, BotHandler>();
