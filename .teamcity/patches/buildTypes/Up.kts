@@ -82,7 +82,7 @@ changeBuildType(RelativeId("Up")) {
             step {
                 name = "Production sentry settings"
                 type = "MRPP_CreateTextFile2"
-                param("system.dest.file", "%teamcity.build.checkoutDir%/src/pp_bot.Server/dbsettings.Production.json")
+                param("system.dest.file", "%teamcity.build.checkoutDir%/src/pp_bot.Server/sentrysettings.Production.json")
                 param("content", """
                     {
                         "Sentry": {
