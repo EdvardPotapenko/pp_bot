@@ -115,14 +115,14 @@ namespace pp_bot.Server.Сommands
             currentUser.PPLength -= valueToTransfer;
             await _context.SaveChangesAsync(ct);
 
-            string sourceUserText = $"[{$"{message.From.FirstName} {message.From.LastName}".Trim()}](tg://user?id={message.From.Id})";
+            string sourceUserText = $"<a href=\"tg://user?id={message.From.Id}\">{$"{message.From.FirstName} {message.From.LastName}".Trim()}</a>";
             string targetUserFirstName = userMention?.User.FirstName ?? message.ReplyToMessage?.From.FirstName ?? separatedText[2];
             string targetUserLastName = userMention?.User.LastName ?? message.ReplyToMessage?.From.LastName;
-            string targetUserText = $"[{$"{targetUserFirstName} {targetUserLastName}".Trim()}](tg://user?id={targetUserId})";
+            string targetUserText = $"<a href=\"tg://user?id={targetUserId}\">{$"{targetUserFirstName} {targetUserLastName}".Trim()}</a>";
             await _client.SendTextMessageAsync(message.Chat,
                 $"Не сказать, что {sourceUserText} отличается умом и " +
                 $"сообразительностью, но он подарил {valueToTransfer} см {targetUserText}",
-                ParseMode.MarkdownV2,
+                ParseMode.Html,
                 cancellationToken: ct);
         }
 
