@@ -27,7 +27,14 @@ namespace pp_bot.Server.Services
             {
                 if (command.Contains(m))
                 {
-                    await command.ExecuteAsync(m, ct);
+                    try
+                    {
+                        await command.ExecuteAsync(m, ct);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
                     break;
                 }
             }
