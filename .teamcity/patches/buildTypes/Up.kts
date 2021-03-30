@@ -81,5 +81,19 @@ changeBuildType(RelativeId("Up")) {
         update<ExecBuildStep>(3) {
             clearConditions()
         }
+        insert(4) {
+            step {
+                name = "Production sentry settings"
+                type = "MRPP_CreateTextFile2"
+                param("system.dest.file", "%teamcity.build.checkoutDir%/src/pp_bot.Server/dbsettings.Production.json")
+                param("content", """
+                    {
+                        "Sentry": {
+                            "Dsn": "%env.SENTRY_DSN%"
+                        }
+                    }
+                """.trimIndent())
+            }
+        }
     }
 }
