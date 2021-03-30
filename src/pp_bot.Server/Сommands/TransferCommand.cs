@@ -48,6 +48,13 @@ namespace pp_bot.Server.Сommands
                 return;
             }
 
+            if (valueToTransfer < 1)
+            {
+                await _client.SendTextMessageAsync(message.Chat, "Минимально можно передать 1 см.",
+                    replyToMessageId: message.MessageId, cancellationToken: ct);
+                return;
+            }
+
             MessageEntity userMention = message.Entities.FirstOrDefault(e =>
                 e.Type == MessageEntityType.TextMention);
             int targetUserId;
