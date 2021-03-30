@@ -35,7 +35,7 @@ namespace pp_bot.Server.Сommands
                     cancellationToken: ct);
             }
             
-            string[] separatedText = message.Text.Split(' ', 2);
+            string[] separatedText = message.Text.Split(' ', 4);
             if (separatedText.Length < 2)
             {
                 await SendErrorAsync();
@@ -49,11 +49,26 @@ namespace pp_bot.Server.Сommands
             }
 
             MessageEntity userMention = message.Entities.FirstOrDefault(e =>
-                e.Type == MessageEntityType.TextMention || e.Type == MessageEntityType.Mention);
+                e.Type == MessageEntityType.TextMention);
             int targetUserId;
             if (userMention != null)
             {
                 targetUserId = userMention.User.Id;
+            }
+            else if (separatedText.Length > 2 && message.Entities.Any(e => e.Type == MessageEntityType.Mention))
+            {
+                var userByUsername = await _context.BotUsers
+                    .Where(u => u.Username == separatedText[2].Substring(1))
+                    .Select(u => new {u.TelegramId})
+                    .FirstOrDefaultAsync(ct);
+                if (userByUsername == null)
+                {
+                    await _client.SendTextMessageAsync(message.Chat, "Получатель не зарегистрирован в боте!",
+                        replyToMessageId: message.MessageId, cancellationToken: ct);
+                    return;
+                }
+
+                targetUserId = (int) userByUsername.TelegramId;
             }
             else if (message.ReplyToMessage != null)
             {
@@ -101,12 +116,13 @@ namespace pp_bot.Server.Сommands
             await _context.SaveChangesAsync(ct);
 
             string sourceUserText = $"[{$"{message.From.FirstName} {message.From.LastName}".Trim()}](tg://user?id={message.From.Id})";
-            string targetUserFirstName = userMention?.User.FirstName ?? message.ReplyToMessage.From.FirstName;
-            string targetUserLastName = userMention?.User.LastName ?? message.ReplyToMessage.From.LastName;
+            string targetUserFirstName = userMention?.User.FirstName ?? message.ReplyToMessage?.From.FirstName ?? separatedText[2];
+            string targetUserLastName = userMention?.User.LastName ?? message.ReplyToMessage?.From.LastName;
             string targetUserText = $"[{$"{targetUserFirstName} {targetUserLastName}".Trim()}](tg://user?id={targetUserId})";
             await _client.SendTextMessageAsync(message.Chat,
                 $"Не сказать, что {sourceUserText} отличается умом и " +
                 $"сообразительностью, но он подарил {valueToTransfer} см {targetUserText}",
+                ParseMode.MarkdownV2,
                 cancellationToken: ct);
         }
 
