@@ -1,5 +1,6 @@
 using Nuke.Common;
 using Nuke.Common.CI;
+using Nuke.Common.CI.GitHubActions;
 using Nuke.Common.CI.TeamCity;
 using Nuke.Common.Execution;
 using Nuke.Common.IO;
@@ -17,6 +18,11 @@ using static Nuke.Common.Tools.DotNet.DotNetTasks;
     ExcludedTargets = new[] {nameof(Clean)},
     VcsTriggeredTargets = new[] {nameof(Compile), nameof(Up)},
     Version = "2020.2")]
+[GitHubActions("build",
+    GitHubActionsImage.UbuntuLatest,
+    OnPushBranches = new[] {"main"},
+    OnPullRequestBranches = new []{"main"},
+    InvokedTargets = new[] {nameof(Compile)})]
 class Build : NukeBuild
 {
     /// Support plugins are available for:
