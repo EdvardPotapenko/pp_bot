@@ -1,0 +1,12 @@
+﻿{
+    "Sentry": {
+        "Dsn": "PLACEHOLDER",
+        "IncludeRequestPayload": true,
+        "SendDefaultPii": true,
+        "MinimumBreadcrumbLevel": "Debug",
+        "MinimumEventLevel": "Warning",
+        "AttachStackTrace": true,
+        "Debug": true,
+        "DiagnosticsLevel": "Error"
+    }
+}

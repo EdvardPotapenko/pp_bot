@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using pp_bot.Server.Models;
 using pp_bot.Server.Services;
 using pp_bot.Server.Сommands;
@@ -29,11 +30,14 @@ namespace pp_bot.Server
                         .AddJsonFile("botsettings.json", false, false)
                         .AddJsonFile($"botsettings.{env}.json", true, false)
                         .AddJsonFile("dbsettings.json", false, false)
-                        .AddJsonFile($"dbsettings.{env}.json", true, false);
+                        .AddJsonFile($"dbsettings.{env}.json", true, false)
+                        .AddJsonFile("sentrysettings.json", false, false)
+                        .AddJsonFile($"sentrysettings.{env}.json", true, false);
                 })
                 .ConfigureServices((context, services) =>
                 {
                     var config = context.Configuration;
+                    services.AddLogging();
                     services.AddSingleton<CommandPatternManager>();
                     services.AddSingleton<IAchievementManager, AchievementManager>();
                     services.AddSingleton<ITelegramBotClient>(
@@ -47,6 +51,16 @@ namespace pp_bot.Server
                     foreach (var commandType in baseType.Assembly.GetTypes().Where(t => baseType.IsAssignableFrom(t) && t.IsClass && t.IsPublic && !t.IsAbstract))
                     {
                         services.AddScoped(baseType, commandType);
+                    }
+                })
+                .ConfigureLogging((context, builder) =>
+                {
+                    builder.AddConfiguration(context.Configuration);
+                    builder.AddConsole();
+                    builder.AddDebug();
+                    if (context.HostingEnvironment.IsProduction())
+                    {
+                        builder.AddSentry(context.Configuration["Sentry:Dsn"]);
                     }
                 })
                 .Build();
