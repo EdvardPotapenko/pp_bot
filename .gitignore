@@ -16,3 +16,4 @@ obj/
 .idea/
 .vs/
 botsettings.*.json
+docker-compose.override.yml
