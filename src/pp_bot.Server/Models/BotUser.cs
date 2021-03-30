@@ -8,7 +8,7 @@ namespace pp_bot.Server.Models {
         public long TelegramId {get;init;}
         public long PPLength{get;set;}
         public DateTime LastManipulationTime{get;set;}
-
         public List<Chat> UserChats{get;set;} = new List<Chat>();
+        public List<Achievement> Achievements {get;set;} = new List<Achievement>();
     }
 }

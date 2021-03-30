@@ -6,10 +6,10 @@ services:
     depends_on:
       - postgres
     container_name: pp_bot_app
-    image: ppbot
+    image: ppbot/host:latest
     build:
       context: .
-      dockerfile: src/Dockerfile
+      dockerfile: pp_bot.Server/Dockerfile
     volumes:
       - ~/.vsdbg:/remote_debugger:rw
 
