@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using pp_bot.Server.Models;
@@ -9,9 +10,10 @@ using pp_bot.Server.Models;
 namespace pp_bot.Server.Migrations
 {
     [DbContext(typeof(PP_Context))]
-    partial class PP_ContextModelSnapshot : ModelSnapshot
+    [Migration("20210401170458_RemoveIdFieldForChat")]
+    partial class RemoveIdFieldForChat
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
