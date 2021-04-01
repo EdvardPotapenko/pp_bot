@@ -40,7 +40,7 @@ class Build : NukeBuild
     readonly bool WipeDatabaseData;
 
     [Parameter("The name of docker-compose project")]
-    readonly string ProjectName;
+    readonly string ProjectName = "pp_bot";
 
     [Solution] readonly Solution Solution;
     [PathExecutable("docker-compose")] readonly Tool DockerCompose;

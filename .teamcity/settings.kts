@@ -56,7 +56,7 @@ project {
             "env.ProjectName",
             label = "ProjectName",
             description = "The name of docker-compose project",
-            value = "",
+            value = "pp_bot",
             allowEmpty = true,
             display = ParameterDisplay.NORMAL)
     }
