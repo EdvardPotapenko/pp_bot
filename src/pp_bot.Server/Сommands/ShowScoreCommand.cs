@@ -62,8 +62,7 @@ namespace pp_bot.Server.Сommands
             int i = 0;
             foreach (var botUser in topFifteen)
             {
-                var actualUserInfo = await Client.GetChatMemberAsync(message.Chat, botUser.Id, ct);
-                scoreMessage += $"🍆 {++i}. {actualUserInfo.User.Username} – {botUser.PPLength} см\n";
+                scoreMessage += $"🍆 {++i}. {botUser.Username} – {botUser.PPLength} см\n";
             }
 
             await Client.SendTextMessageAsync(
