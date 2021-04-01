@@ -10,18 +10,18 @@ namespace pp_bot.Server.Сommands
 
     public class ShowScoreCommand : IChatAction
     {
-        PP_Context _Context { get; set; }
-        ITelegramBotClient _Client { get; set; }
-        UserAPI _UserAPI { get; set; }
+        private PP_Context Context { get; set; }
+        private ITelegramBotClient Client { get; set; }
+        private UserAPI UserApi { get; set; }
 
         const string _BotName = "@PPgrower_bot";
         const string _CommandName = "/score";
 
         public ShowScoreCommand(ITelegramBotClient client, PP_Context context)
         {
-            _Client = client;
-            _Context = context;
-            _UserAPI = new UserAPI(_Client, _Context);
+            Client = client;
+            Context = context;
+            UserApi = new UserAPI(Client, Context);
         }
 
         public bool Contains(Message message)
@@ -38,38 +38,39 @@ namespace pp_bot.Server.Сommands
             if (message.Type != Telegram.Bot.Types.Enums.MessageType.Text)
                 return;
 
-            await this.ShowScore(message);
+            await ShowScore(message, ct);
         }
 
-        private async Task ShowScore(Message message)
+        private async Task ShowScore(Message message, CancellationToken ct)
         {
 
-            var chat = await _UserAPI.GetChatAsync(message);
+            var chat = await UserApi.GetChatAsync(message);
 
             if (chat == null || chat.ChatUsers.Count == 0)
             {
-                chat = await _UserAPI.CreateNewChatAsync(message);
-                await _Client.SendTextMessageAsync(
+                chat = await UserApi.CreateNewChatAsync(message);
+                await Client.SendTextMessageAsync(
                       message.Chat.Id,
-                      "Челов пока нет в игре 🍆"
-                      );
+                      "Челов пока нет в игре 🍆",
+                      cancellationToken: ct);
                 return;
             }
 
             var topFifteen = chat.ChatUsers.OrderByDescending(u => u.PPLength).Take(15).ToList();
-
+            
             string scoreMessage = $"Топ 15 песюнов 🍆 в '{chat.ChatName}'\n";
-
-            topFifteen.ForEach((user) =>
+            int i = 0;
+            foreach (var botUser in topFifteen)
             {
-                scoreMessage += $"🍆 {user.Username} - {user.PPLength}см\n";
-            });
+                var actualUserInfo = await Client.GetChatMemberAsync(message.Chat, botUser.Id, ct);
+                scoreMessage += $"🍆 {++i}. {actualUserInfo.User.Username} – {botUser.PPLength} см\n";
+            }
 
-            await _Client.SendTextMessageAsync(
+            await Client.SendTextMessageAsync(
                       message.Chat.Id,
                       scoreMessage,
-                      parseMode: Telegram.Bot.Types.Enums.ParseMode.Html
-                      );
+                      Telegram.Bot.Types.Enums.ParseMode.Html,
+                      cancellationToken: ct);
         }
     }
 }
