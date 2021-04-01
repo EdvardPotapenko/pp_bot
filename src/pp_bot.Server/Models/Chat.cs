@@ -7,7 +7,7 @@ namespace pp_bot.Server.Models
     {
         [Key]
         public long ChatId { get; init; }
-        public string ChatName{ get; init; }
-        public List<BotUser> ChatUsers{ get; init; }
+        public string ChatName { get; init; }
+        public List<BotUser> ChatUsers { get; init; }
     }
 }
