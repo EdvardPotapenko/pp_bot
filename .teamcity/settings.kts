@@ -52,6 +52,13 @@ project {
             checked = "True",
             unchecked = "False",
             display = ParameterDisplay.NORMAL)
+        text (
+            "env.ProjectName",
+            label = "ProjectName",
+            description = "The name of docker-compose project",
+            value = "",
+            allowEmpty = true,
+            display = ParameterDisplay.NORMAL)
     }
 }
 object Compile : BuildType({

@@ -39,6 +39,9 @@ class Build : NukeBuild
     [Parameter("Check to wipe the database data")]
     readonly bool WipeDatabaseData;
 
+    [Parameter("The name of docker-compose project")]
+    readonly string ProjectName;
+
     [Solution] readonly Solution Solution;
     [PathExecutable("docker-compose")] readonly Tool DockerCompose;
 
@@ -73,13 +76,18 @@ class Build : NukeBuild
     Target Down => _ => _
         .Executes(() =>
         {
-            DockerCompose(WipeDatabaseData ? "down --volumes" : "down", SourceDirectory);
+            string command = $"-p {ProjectName} down";
+            if (WipeDatabaseData)
+            {
+                command += " --volumes";
+            }
+            DockerCompose(command, SourceDirectory);
         });
 
     Target Up => _ => _
         .DependsOn(Down)
         .Executes(() =>
         {
-            DockerCompose("up --build -d", SourceDirectory);
+            DockerCompose($"-p {ProjectName} up --build -d", SourceDirectory);
         });
 }
