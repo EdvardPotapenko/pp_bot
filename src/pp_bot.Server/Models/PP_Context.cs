@@ -19,11 +19,11 @@ namespace pp_bot.Server.Models
             modelBuilder.Entity<BotUserChat>()
                 .HasOne(b => b.Chat)
                 .WithMany(c => c.ChatUsers)
-                .HasForeignKey("FK_BotUserChat_Chats_UserChatsChatId");
+                .HasForeignKey(b => b.UserChatsChatId);
             modelBuilder.Entity<BotUserChat>()
                 .HasOne(b => b.User)
                 .WithMany(u => u.UserChats)
-                .HasForeignKey("FK_BotUserChat_BotUsers_ChatUsersId");
+                .HasForeignKey(b => b.ChatUsersId);
         }
     }
 }
