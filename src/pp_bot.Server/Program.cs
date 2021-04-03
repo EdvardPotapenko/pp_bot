@@ -8,6 +8,8 @@ using Microsoft.Extensions.Logging;
 using pp_bot.Server.Models;
 using pp_bot.Server.Services;
 using pp_bot.Server.Сommands;
+using Serilog;
+using Serilog.Sinks.Loki;
 using Telegram.Bot;
 using Telegram.Bot.Extensions.Polling;
 // ReSharper disable MethodHasAsyncOverload
@@ -61,6 +63,14 @@ namespace pp_bot.Server
                     if (context.HostingEnvironment.IsProduction())
                     {
                         builder.AddSentry(context.Configuration["Sentry:Dsn"]);
+                        
+                        var credentials = new NoAuthCredentials("https://loki.vova-lantsov.dev/");
+                        var lokiLogger = new LoggerConfiguration()
+                            .MinimumLevel.Information()
+                            .Enrich.FromLogContext()
+                            .WriteTo.LokiHttp(credentials)
+                            .CreateLogger();
+                        builder.AddSerilog(lokiLogger);
                     }
                 })
                 .Build();
