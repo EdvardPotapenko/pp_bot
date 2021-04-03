@@ -11,5 +11,19 @@ namespace pp_bot.Server.Models
         public DbSet<BotUser> BotUsers { get; set; }
         public DbSet<Chat> Chats { get; set; }
         public DbSet<BotUserChat> BotUserChat { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<BotUserChat>()
+                .HasKey(b => new {b.ChatUsersId, b.UserChatsChatId});
+            modelBuilder.Entity<BotUserChat>()
+                .HasOne(b => b.Chat)
+                .WithMany(c => c.ChatUsers)
+                .HasForeignKey("FK_BotUserChat_Chats_UserChatsChatId");
+            modelBuilder.Entity<BotUserChat>()
+                .HasOne(b => b.User)
+                .WithMany(u => u.UserChats)
+                .HasForeignKey("FK_BotUserChat_BotUsers_ChatUsersId");
+        }
     }
 }
