@@ -87,45 +87,39 @@ namespace pp_bot.Server.Сommands
                 return;
             }
 
-            var currentUser = await _context.BotUsers.FirstOrDefaultAsync(u => u.TelegramId == message.From.Id, ct);
-            if (currentUser == null)
+            var binding = await _context.BotUserChat
+                .Include(b => b.User)
+                .FirstOrDefaultAsync(b => b.User.TelegramId == message.From.Id, ct);
+            if (binding == null)
             {
                 await _client.SendTextMessageAsync(message.Chat, "Вы не зарегистрированы в боте!",
                     replyToMessageId: message.MessageId, cancellationToken: ct);
                 return;
             }
 
-            if (currentUser.PPLength < valueToTransfer)
+            if (binding.PPLength < valueToTransfer)
             {
                 await _client.SendTextMessageAsync(message.Chat, "Недостаточно длины на счету!",
                     replyToMessageId: message.MessageId, cancellationToken: ct);
                 return;
             }
 
-            var targetUserRegistered = await _context.BotUsers
-                .Where(u => u.TelegramId == targetUserId)
-                .Select(u => new {u.Id, u.PPLength})
-                .FirstOrDefaultAsync(ct);
-            if (targetUserRegistered == null)
+            var targetUserBinding = await _context.BotUserChat
+                .Include(b => b.User)
+                .FirstOrDefaultAsync(b => b.User.TelegramId == targetUserId, ct);
+            if (targetUserBinding == null)
             {
                 await _client.SendTextMessageAsync(message.Chat, "Получатель не зарегистрирован в боте!",
                     replyToMessageId: message.MessageId, cancellationToken: ct);
                 return;
             }
 
-            var updateTargetUser = new BotUser
-            {
-                Id = targetUserRegistered.Id,
-                PPLength = targetUserRegistered.PPLength + valueToTransfer
-            };
-            _context.Attach(updateTargetUser).Property(u => u.PPLength).IsModified = true;
-            currentUser.PPLength -= valueToTransfer;
+            targetUserBinding.PPLength += valueToTransfer;
+            binding.PPLength -= valueToTransfer;
             await _context.SaveChangesAsync(ct);
 
-            string sourceUserText = $"<a href=\"tg://user?id={message.From.Id}\">{$"{message.From.FirstName} {message.From.LastName}".Trim()}</a>";
-            string targetUserFirstName = userMention?.User.FirstName ?? message.ReplyToMessage?.From.FirstName ?? separatedText[2];
-            string targetUserLastName = userMention?.User.LastName ?? message.ReplyToMessage?.From.LastName;
-            string targetUserText = $"<a href=\"tg://user?id={targetUserId}\">{$"{targetUserFirstName} {targetUserLastName}".Trim()}</a>";
+            string sourceUserText = $"<a href=\"tg://user?id={message.From.Id}\">{binding.User.Username}</a>";
+            string targetUserText = $"<a href=\"tg://user?id={targetUserId}\">{targetUserBinding.User.Username}</a>";
             await _client.SendTextMessageAsync(message.Chat,
                 $"Не сказать, что {sourceUserText} отличается умом и " +
                 $"сообразительностью, но он подарил {valueToTransfer} см {targetUserText}",

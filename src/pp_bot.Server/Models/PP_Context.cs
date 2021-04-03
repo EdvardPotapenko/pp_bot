@@ -10,5 +10,6 @@ namespace pp_bot.Server.Models
         
         public DbSet<BotUser> BotUsers { get; set; }
         public DbSet<Chat> Chats { get; set; }
+        public DbSet<BotUserChat> BotUserChat { get; set; }
     }
 }

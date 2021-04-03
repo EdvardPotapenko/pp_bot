@@ -26,7 +26,8 @@ namespace pp_bot.Server.Services
         {
             await (update switch
             {
-                { Message: { } } => HandleMessageAsync(update.Message, cancellationToken),
+                { Message: { Chat: { Type: ChatType.Group or ChatType.Supergroup }, Text: { } } } =>
+                    HandleMessageAsync(update.Message, cancellationToken),
                 _ => Task.CompletedTask
             });
         }

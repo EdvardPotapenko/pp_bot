@@ -1,104 +1,99 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using pp_bot.Server.Models;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Chat = pp_bot.Server.Models.Chat;
+
+// ReSharper disable InconsistentNaming
 
 namespace pp_bot.Server.Сommands
 {
-
     public class GrowPPCommand : IChatAction
     {
+        private Random Random { get; } = new();
+        private PP_Context Context { get; }
+        private ITelegramBotClient Client { get; }
 
-        Random random { get; set; } = new Random();
-        PP_Context _Context { get; set; }
-        ITelegramBotClient _Client { get; set; }
+        private DatabaseHelper DatabaseHelper { get; }
 
-        UserAPI _UserAPI {get;set;}
+        private const string CommandName = "/grow";
 
-        const string _BotName = "@PPgrower_bot";
-        const string _CommandName = "/grow";
-
-        const int delayMinutes = 60;
+        private const int DelayMinutes = 60;
 
         public GrowPPCommand(ITelegramBotClient client, PP_Context context)
         {
-            _Client = client;
-            _Context = context;
-            _UserAPI = new UserAPI(_Client, _Context);
+            Client = client;
+            Context = context;
+            DatabaseHelper = new DatabaseHelper(context);
         }
 
         public bool Contains(Message message)
         {
-            return message.Text == _CommandName ||
-                   message.Text == _CommandName + _BotName;
+            return message.Text.StartsWith(CommandName);
         }
 
         public async Task ExecuteAsync(Message message, CancellationToken ct)
         {
-            if (message.Chat.Id > 0)
-                return;
+            var binding = await Context.BotUserChat
+                .Include(b => b.User)
+                .FirstOrDefaultAsync(b => b.User.TelegramId == message.From.Id && b.UserChatsChatId == message.Chat.Id, ct);
 
-            if (message.Type != Telegram.Bot.Types.Enums.MessageType.Text)
-                return;
-
-            var user = await _UserAPI.GetUserAsync(message);
-
-            if (user == null)
+            if (binding == null)
             {
-                user = await _UserAPI.HandleNewUserAsync(
-                    message,
-                    $"Подожди ещё {delayMinutes} мин. чтобы начать ВЫРАЩИВАНИЕ!"
-                    );
-                await _UserAPI.HandleChatBindingAsync(user, message);
+                var user = await Context.BotUsers.AsNoTracking().FirstAsync(u => u.TelegramId == message.From.Id, ct);
+                await DatabaseHelper.BindUserAndChatAsync(new Chat {ChatId = message.Chat.Id}, user);
+                await Client.SendTextMessageAsync(
+                    message.Chat,
+                    $"Подожди ещё {DelayMinutes} мин. чтобы начать ВЫРАЩИВАНИЕ!",
+                    cancellationToken: ct);
                 return;
             }
 
-            await _UserAPI.HandleChatBindingAsync(user, message);
-
-            await this.ConfigurePP(user, message);
+            await ConfigurePP(binding, message);
         }
 
-        private async Task ConfigurePP(BotUser user, Message message)
+        private async Task ConfigurePP(BotUserChat binding, Message message)
         {
-            var timePassed = Math.Abs((user.LastManipulationTime - DateTime.Now).TotalMinutes);
+            var timePassed = Math.Abs((binding.LastManipulationTime - DateTime.Now).TotalMinutes);
 
             timePassed = Math.Round(timePassed, 1);
 
-            if (timePassed < delayMinutes)
+            if (timePassed < DelayMinutes)
             {
-                var timeLeft = Math.Round(delayMinutes - timePassed
+                var timeLeft = Math.Round(DelayMinutes - timePassed
                 , 2);
-                await _Client.SendTextMessageAsync(
+                await Client.SendTextMessageAsync(
                     message.Chat.Id,
-                    $"{user.Username}, не дергай ты так, а то оторвешь, потерпи ещё {timeLeft} мин.");
+                    $"{binding.User.Username}, не дергай ты так, а то оторвешь, потерпи ещё {timeLeft} мин.");
                 return;
             }
 
-            user.LastManipulationTime = DateTime.Now;
+            binding.LastManipulationTime = DateTime.Now;
 
-            int ppManipulationResult = random.Next(1, 10);
+            int ppManipulationResult = Random.Next(1, 10);
 
-            bool sign = Convert.ToBoolean(random.Next(0, 3));
+            bool sign = Convert.ToBoolean(Random.Next(0, 3));
 
-            if (user.PPLength - ppManipulationResult < 0 || sign)
+            if (binding.PPLength - ppManipulationResult < 0 || sign)
             {
-                user.PPLength += Math.Abs(ppManipulationResult);
-                await _Context.SaveChangesAsync();
-                await _Client.SendTextMessageAsync(
+                binding.PPLength += Math.Abs(ppManipulationResult);
+                await Context.SaveChangesAsync();
+                await Client.SendTextMessageAsync(
                     message.Chat.Id,
-                    $"Песюн 🍆 {user.Username} вырос 📈 на {ppManipulationResult}см\n" +
-                    $"Теперь он {user.PPLength}см");
+                    $"Песюн 🍆 {binding.User.Username} вырос 📈 на {ppManipulationResult} см\n" +
+                    $"Теперь он {binding.PPLength} см");
                 return;
             }
 
-            user.PPLength -= ppManipulationResult;
-            await _Context.SaveChangesAsync();
-            await _Client.SendTextMessageAsync(
+            binding.PPLength -= ppManipulationResult;
+            await Context.SaveChangesAsync();
+            await Client.SendTextMessageAsync(
                     message.Chat.Id,
-                    $"Песюн 🍆 {user.Username} отсох 🔻 на {ppManipulationResult}см\n" +
-                    $"Тепер он {user.PPLength}см");
+                    $"Песюн 🍆 {binding.User.Username} отсох 🔻 на {ppManipulationResult} см\n" +
+                    $"Тепер он {binding.PPLength} см");
         }
     }
 }
