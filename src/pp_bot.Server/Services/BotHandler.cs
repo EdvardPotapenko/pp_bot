@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Extensions.Polling;
 using Telegram.Bot.Types;
@@ -14,14 +15,17 @@ namespace pp_bot.Server.Services
         private readonly CommandPatternManager _commandPatternManager;
         private readonly IAchievementManager _achievementManager;
         private readonly IServiceProvider _serviceProvider;
+        private readonly ILogger<BotHandler> _logger;
 
         public BotHandler(ITelegramBotClient client, CommandPatternManager commandPatternManager,
-            IAchievementManager achievementManager, IServiceProvider serviceProvider)
+            IAchievementManager achievementManager, IServiceProvider serviceProvider,
+            ILogger<BotHandler> logger)
         {
             _client = client;
             _commandPatternManager = commandPatternManager;
             _achievementManager = achievementManager;
             _serviceProvider = serviceProvider;
+            _logger = logger;
         }
 
         public async Task HandleUpdate(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
