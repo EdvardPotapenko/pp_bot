@@ -91,8 +91,7 @@ namespace pp_bot.Server.Services
             {
                 var chat = new Chat
                 {
-                    ChatId = m.Chat.Id,
-                    ChatName = m.Chat.Title
+                    ChatId = m.Chat.Id
                 };
                 // ReSharper disable once MethodHasAsyncOverloadWithCancellation
                 context.Chats.Add(chat);

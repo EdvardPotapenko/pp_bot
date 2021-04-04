@@ -46,8 +46,9 @@ namespace pp_bot.Server.Сommands
             }
 
             var topFifteen = chat.ChatUsers.OrderByDescending(u => u.PPLength).Take(15).ToList();
-            
-            string scoreMessage = $"Топ 15 песюнов 🍆 в '{chat.ChatName}'\n";
+
+            var actualChat = await Client.GetChatAsync(message.Chat, ct);
+            string scoreMessage = $"Топ 15 песюнов 🍆 в '{actualChat.Title}'\n";
             int i = 0;
             foreach (var botUser in topFifteen)
             {
