@@ -12,7 +12,7 @@ namespace pp_bot.Server.Models
         public DbSet<Chat> Chats { get; set; }
         public DbSet<BotUserChat> BotUserChat { get; set; }
         public DbSet<Achievement> Achievements { get; set; }
-
+        public DbSet<GrowHistory> GrowHistories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -26,6 +26,8 @@ namespace pp_bot.Server.Models
                 .HasOne(b => b.User)
                 .WithMany(u => u.UserChats)
                 .HasForeignKey(b => b.ChatUsersId);
+            modelBuilder.Entity<BotUserChat>()
+                .HasMany(b => b.UserChatGrowHistory);
             modelBuilder.Entity<Achievement>()
                 .HasMany(a => a.UsersAcquired)
                 .WithMany(b => b.AcquiredAchievements);

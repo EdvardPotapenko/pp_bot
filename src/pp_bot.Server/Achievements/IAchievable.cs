@@ -6,6 +6,6 @@ namespace pp_bot.Server.Achievements
 {
     public interface IAchievable
     {
-        Task IsAcquiredAsync(Message m, CancellationToken ct);
+        Task AcquireAsync(Message m, CancellationToken ct);
     }
 }

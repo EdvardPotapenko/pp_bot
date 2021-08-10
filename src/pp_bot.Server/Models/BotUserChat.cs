@@ -10,7 +10,7 @@ namespace pp_bot.Server.Models
         public long UserChatsChatId { get; set; }
         public Chat Chat { get; set; }
         public int PPLength { get; set; }
-        public int LastPPLengthChange { get; set; }
+        public List<GrowHistory> UserChatGrowHistory {get;init;} = new List<GrowHistory>();
         public DateTime LastManipulationTime { get; set; }
         public List<Achievement> AcquiredAchievements { get; set; } = new List<Achievement>();
     }

@@ -81,7 +81,12 @@ namespace pp_bot.Server.Сommands
             if (binding.PPLength - ppManipulationResult < 0 || sign)
             {
                 binding.PPLength += Math.Abs(ppManipulationResult);
-                binding.LastPPLengthChange = +ppManipulationResult;   
+                binding.UserChatGrowHistory.Add(
+                    new GrowHistory()
+                    {
+                        PPLengthChange = +ppManipulationResult
+                    }
+                );
 
                 await _context.SaveChangesAsync();
                 await _client.SendTextMessageAsync(
@@ -92,7 +97,12 @@ namespace pp_bot.Server.Сommands
             }
 
             binding.PPLength -= ppManipulationResult;
-            binding.LastPPLengthChange = -ppManipulationResult;
+            binding.UserChatGrowHistory.Add(
+                    new GrowHistory()
+                    {
+                        PPLengthChange = -ppManipulationResult
+                    }
+                );
             await _context.SaveChangesAsync();
             await _client.SendTextMessageAsync(
                     message.Chat.Id,

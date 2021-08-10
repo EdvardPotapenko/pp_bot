@@ -23,7 +23,7 @@ namespace pp_bot.Server.Achievements
             _databaseHelper = new DatabaseHelper(context);
         }
 
-        public async Task IsAcquiredAsync(Message m, CancellationToken ct)
+        public async Task AcquireAsync(Message m, CancellationToken ct)
         {
             var achievement = await _context.Achievements.FirstOrDefaultAsync(a => a.Id == ACHIEVEMENT_ID, ct);
             var userChat = await _databaseHelper.GetUserChatAsync(m,ct);
@@ -39,8 +39,6 @@ namespace pp_bot.Server.Achievements
                 userChat.AcquiredAchievements.Add(achievement);
                 achievement.UsersAcquired.Add(userChat);
 
-                _context.Update(userChat);
-                _context.Update(achievement);
                 await _context.SaveChangesAsync(ct);
 
                 await _client.SendTextMessageAsync

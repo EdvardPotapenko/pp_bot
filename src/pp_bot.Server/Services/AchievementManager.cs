@@ -51,7 +51,7 @@ namespace pp_bot.Server.Services
             {
                 try
                 {
-                    await achievement.IsAcquiredAsync(m, ct);
+                    await achievement.AcquireAsync(m, ct);
                 }
                 catch (Exception e)
                 {
