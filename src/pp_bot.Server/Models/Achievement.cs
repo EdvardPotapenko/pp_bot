@@ -12,6 +12,6 @@ namespace pp_bot.Server.Models
         
         public string ImageFileName {get;init;}
         
-        public List<BotUserChat> UsersAcquired{get;set;} = new List<BotUserChat>();
+        public List<BotUserChat> UsersAcquired{get;init;} = new List<BotUserChat>();
     }
 }

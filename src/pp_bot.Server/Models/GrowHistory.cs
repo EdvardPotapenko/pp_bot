@@ -8,6 +8,6 @@ namespace pp_bot.Server.Models
         [Key]
         public long GrowHistoryId {get;init;}
         public int PPLengthChange { get; init; }
-        public DateTime ExecutionTime{get;init;} = DateTime.Now;
+        public DateTime ExecutionTime{get;init;} = DateTime.UtcNow;
     }
 }

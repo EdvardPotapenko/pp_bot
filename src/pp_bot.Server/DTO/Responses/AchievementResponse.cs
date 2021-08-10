@@ -14,6 +14,6 @@ namespace pp_bot.Server.DTO.Responses
         
         public InputOnlineFile Icon {get;init;}
         
-        public List<BotUser> UsersAcquired{get;set;} = new List<BotUser>();
+        public List<BotUserChat> UsersAcquired{get;set;} = new List<BotUserChat>();
     }
 }

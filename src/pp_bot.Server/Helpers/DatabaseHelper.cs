@@ -46,6 +46,7 @@ namespace pp_bot.Server.Helpers
             return await _context.BotUserChat
                         .Include(uc => uc.User)
                         .Include(uc => uc.AcquiredAchievements)
+                        .Include(uc => uc.UserChatGrowHistory)
                         .FirstOrDefaultAsync
                          (
                              uc => uc.Chat.ChatId == message.Chat.Id &&
