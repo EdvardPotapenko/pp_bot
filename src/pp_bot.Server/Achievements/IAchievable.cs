@@ -7,7 +7,10 @@ namespace pp_bot.Server.Achievements
 {
     public interface IAchievable
     {
-        Achievement Achievement {get; init;}
+        int Id {get;}
+        string Name {get;}
+
+        string Description {get;}
         Task AcquireAsync(Message m, CancellationToken ct);
     }
 }

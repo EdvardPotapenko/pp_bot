@@ -1,6 +1,9 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using pp_bot.Server.Achievements;
 using pp_bot.Server.Helpers;
 using pp_bot.Server.Models;
 using Telegram.Bot;
@@ -17,9 +20,11 @@ namespace pp_bot.Server.Сommands
         private readonly ITelegramBotClient _client;
         private readonly DatabaseHelper _databaseHelper;
         private const string COMMAND_NAME = "/achievements";
+        private readonly IEnumerable<IAchievable> _achievements;
 
-        public ListAchievementsCommand(PP_Context context, ITelegramBotClient client)
+        public ListAchievementsCommand(IEnumerable<IAchievable> achievements, PP_Context context, ITelegramBotClient client)
         {
+            _achievements = achievements;
             _context = context;
             _client = client;
             _databaseHelper = new DatabaseHelper(context);
@@ -48,9 +53,11 @@ namespace pp_bot.Server.Сommands
             // Concat all achievement info in one string message
             foreach (var achievement in userChat.AcquiredAchievements)
             {
+                var achievementInfo = _achievements.FirstOrDefault(a => a.Id == achievement.Id);
+
                 achievementsMessage.Append
                 (
-                    $"<b>{achievement.Name}</b>\n<i>{achievement.Description}</i>\nПользователей получило: {achievement.UsersAcquired.Count}\n"
+                    $"<b>{achievementInfo.Name}</b>\n<i>{achievementInfo.Description}</i>\nПользователей получило: {achievement.UsersAcquired.Count}\n"
                 );
             }
         

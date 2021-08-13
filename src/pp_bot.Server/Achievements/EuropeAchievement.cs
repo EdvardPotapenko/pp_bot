@@ -12,8 +12,9 @@ namespace pp_bot.Server.Achievements
 {
     public class EuropeAchievement : IAchievable
     {
-        public Achievement Achievement{get;init;}
-        private const int ACHIEVEMENT_ID  = 3;
+        public string Name => "Україна - це Європа";
+        public string Description => "Отрастить длинну больше, чем средний показатель в Европе.";
+        public int Id => 3;
         private readonly PP_Context _context;
         private readonly DatabaseHelper _databaseHelper;
         private readonly ITelegramBotClient _client;
@@ -23,34 +24,33 @@ namespace pp_bot.Server.Achievements
             _client = client;
             _context = context;
             _databaseHelper = new DatabaseHelper(context);
-
-            Achievement = _context.Achievements.FirstOrDefault(a => a.Id == ACHIEVEMENT_ID);
-
-            if (Achievement == null)
-                throw new NotImplementedException($"Achievement with id {ACHIEVEMENT_ID} was not found");
         }
-
         public async Task AcquireAsync(Message m, CancellationToken ct)
         {
+            var achievement = await _context.Achievements.FirstOrDefaultAsync(a => a.Id == Id);
+
+            if (achievement == null)
+                throw new NotImplementedException($"Achievement with id {Id} was not found");
+
             var userChat = await _databaseHelper.GetUserChatAsync(m,ct);
 
-            if(Achievement == null)
-                throw new NotImplementedException($"Achievement with id {ACHIEVEMENT_ID} was not found");
+            if(achievement == null)
+                throw new NotImplementedException($"Achievement with id {Id} was not found");
 
-            if(userChat.AcquiredAchievements.Contains(Achievement))
+            if(userChat.AcquiredAchievements.Contains(achievement))
                 return;
 
             if(userChat.PPLength >= 14)
             {
-                userChat.AcquiredAchievements.Add(Achievement);
-                Achievement.UsersAcquired.Add(userChat);
+                userChat.AcquiredAchievements.Add(achievement);
+                achievement.UsersAcquired.Add(userChat);
 
                 await _context.SaveChangesAsync(ct);
 
                 await _client.SendTextMessageAsync
                 (
                     m.Chat.Id,
-                    $"<b>{userChat.User.Username}</b> получил достижение <i>{Achievement.Name}</i>, поздравляем 🎉!",
+                    $"<b>{userChat.User.Username}</b> получил достижение <i>{Name}</i>, поздравляем 🎉!",
                     parseMode: Telegram.Bot.Types.Enums.ParseMode.Html,
                     cancellationToken: ct
                 );
