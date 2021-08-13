@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using pp_bot.Server.Helpers;
 using pp_bot.Server.Models;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -9,17 +10,17 @@ namespace pp_bot.Server.Сommands
 {
     public sealed class ShowScoreCommand : IChatAction
     {
-        private PP_Context Context { get; }
-        private ITelegramBotClient Client { get; }
-        private DatabaseHelper DatabaseHelper { get; }
+        private readonly PP_Context _context;
+        private readonly ITelegramBotClient _client;
+        private readonly DatabaseHelper _databaseHelper;
 
         private const string CommandName = "/score";
 
         public ShowScoreCommand(ITelegramBotClient client, PP_Context context)
         {
-            Client = client;
-            Context = context;
-            DatabaseHelper = new DatabaseHelper(Context);
+            _client = client;
+            _context = context;
+            _databaseHelper = new DatabaseHelper(_context);
         }
 
         public bool Contains(Message message)
@@ -29,16 +30,16 @@ namespace pp_bot.Server.Сommands
 
         public async Task ExecuteAsync(Message message, CancellationToken ct)
         {
-            await ShowScore(message, ct);
+            await ShowScoreAsync(message, ct);
         }
 
-        private async Task ShowScore(Message message, CancellationToken ct)
+        private async Task ShowScoreAsync(Message message, CancellationToken ct)
         {
-            var chat = await DatabaseHelper.GetChatAsync(message);
+            var chat = await _databaseHelper.GetChatAsync(message,ct);
 
             if (chat.ChatUsers.Count == 0)
             {
-                await Client.SendTextMessageAsync(
+                await _client.SendTextMessageAsync(
                       message.Chat.Id,
                       "Челов пока нет в игре 🍆",
                       cancellationToken: ct);
@@ -47,7 +48,7 @@ namespace pp_bot.Server.Сommands
 
             var topFifteen = chat.ChatUsers.OrderByDescending(u => u.PPLength).Take(15).ToList();
 
-            var actualChat = await Client.GetChatAsync(message.Chat, ct);
+            var actualChat = await _client.GetChatAsync(message.Chat, ct);
             string scoreMessage = $"Топ 15 песюнов 🍆 в '{actualChat.Title}'\n";
             int i = 0;
             foreach (var botUser in topFifteen)
@@ -55,7 +56,7 @@ namespace pp_bot.Server.Сommands
                 scoreMessage += $"🍆 {++i}. {botUser.User.Username} – {botUser.PPLength} см\n";
             }
 
-            await Client.SendTextMessageAsync(
+            await _client.SendTextMessageAsync(
                       message.Chat.Id,
                       scoreMessage,
                       Telegram.Bot.Types.Enums.ParseMode.Html,

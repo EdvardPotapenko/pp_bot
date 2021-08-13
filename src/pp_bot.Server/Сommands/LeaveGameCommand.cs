@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using pp_bot.Server.Helpers;
 using pp_bot.Server.Models;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -9,17 +10,17 @@ namespace pp_bot.Server.Сommands
 {
     public sealed class LeaveGameCommand : IChatAction
     {
-        private PP_Context Context { get; }
-        private ITelegramBotClient Client { get; }
-        private DatabaseHelper DatabaseHelper { get; }
+        private readonly PP_Context _context;
+        private readonly ITelegramBotClient _client;
+        private readonly DatabaseHelper _databaseHelper;
 
         private const string CommandName = "/leave";
 
         public LeaveGameCommand(ITelegramBotClient client, PP_Context context)
         {
-            Client = client;
-            Context = context;
-            DatabaseHelper = new DatabaseHelper(context);
+            _client = client;
+            _context = context;
+            _databaseHelper = new DatabaseHelper(context);
         }
 
         public bool Contains(Message message)
@@ -31,15 +32,15 @@ namespace pp_bot.Server.Сommands
         {
             try
             {
-                await DatabaseHelper.DeleteUserAsync(message);
+                await _databaseHelper.DeleteUserAsync(message,ct);
 
-                await Client.SendTextMessageAsync(
+                await _client.SendTextMessageAsync(
                     message.Chat.Id,
                     $"Вжух! {message.From.FirstName} больше нет - как и не бывало!", cancellationToken: ct);
             }
             catch(ArgumentException)
             {
-                await Client.SendTextMessageAsync(
+                await _client.SendTextMessageAsync(
                     message.Chat.Id,
                     $"Упс, не удалось удалить пользователя {message.From.FirstName}", cancellationToken: ct);
             }

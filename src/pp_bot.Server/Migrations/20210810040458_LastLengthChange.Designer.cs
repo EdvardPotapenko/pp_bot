@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using pp_bot.Server.Models;
@@ -9,9 +10,10 @@ using pp_bot.Server.Models;
 namespace pp_bot.Server.Migrations
 {
     [DbContext(typeof(PP_Context))]
-    partial class PP_ContextModelSnapshot : ModelSnapshot
+    [Migration("20210810040458_LastLengthChange")]
+    partial class LastLengthChange
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -43,6 +45,15 @@ namespace pp_bot.Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ImageFileName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -78,6 +89,9 @@ namespace pp_bot.Server.Migrations
                     b.Property<DateTime>("LastManipulationTime")
                         .HasColumnType("timestamp without time zone");
 
+                    b.Property<int>("LastPPLengthChange")
+                        .HasColumnType("integer");
+
                     b.Property<int>("PPLength")
                         .HasColumnType("integer");
 
@@ -98,32 +112,6 @@ namespace pp_bot.Server.Migrations
                     b.HasKey("ChatId");
 
                     b.ToTable("Chats");
-                });
-
-            modelBuilder.Entity("pp_bot.Server.Models.GrowHistory", b =>
-                {
-                    b.Property<long>("GrowHistoryId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<int?>("BotUserChatChatUsersId")
-                        .HasColumnType("integer");
-
-                    b.Property<long?>("BotUserChatUserChatsChatId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("ExecutionTime")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<int>("PPLengthChange")
-                        .HasColumnType("integer");
-
-                    b.HasKey("GrowHistoryId");
-
-                    b.HasIndex("BotUserChatChatUsersId", "BotUserChatUserChatsChatId");
-
-                    b.ToTable("GrowHistories");
                 });
 
             modelBuilder.Entity("AchievementBotUserChat", b =>
@@ -160,21 +148,9 @@ namespace pp_bot.Server.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("pp_bot.Server.Models.GrowHistory", b =>
-                {
-                    b.HasOne("pp_bot.Server.Models.BotUserChat", null)
-                        .WithMany("UserChatGrowHistory")
-                        .HasForeignKey("BotUserChatChatUsersId", "BotUserChatUserChatsChatId");
-                });
-
             modelBuilder.Entity("pp_bot.Server.Models.BotUser", b =>
                 {
                     b.Navigation("UserChats");
-                });
-
-            modelBuilder.Entity("pp_bot.Server.Models.BotUserChat", b =>
-                {
-                    b.Navigation("UserChatGrowHistory");
                 });
 
             modelBuilder.Entity("pp_bot.Server.Models.Chat", b =>

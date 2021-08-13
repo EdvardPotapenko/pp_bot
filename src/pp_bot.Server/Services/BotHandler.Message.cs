@@ -13,6 +13,7 @@ namespace pp_bot.Server.Services
         private async Task HandleMessageAsync(Message m, CancellationToken ct)
         {
             await _commandPatternManager.HandleCommandAsync(m, ct);
+            await _achievementManager.HandleAchievementsAsync(m, ct);
         }
         
         private async Task HandleUserLeftAsync(Message m, CancellationToken ct)

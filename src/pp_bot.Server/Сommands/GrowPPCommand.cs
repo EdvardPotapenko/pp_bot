@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using pp_bot.Server.Helpers;
 using pp_bot.Server.Models;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -14,10 +15,10 @@ namespace pp_bot.Server.Сommands
     public class GrowPPCommand : IChatAction
     {
         private Random Random { get; } = new();
-        private PP_Context Context { get; }
-        private ITelegramBotClient Client { get; }
+        private readonly PP_Context _context;
+        private readonly ITelegramBotClient _client;
 
-        private DatabaseHelper DatabaseHelper { get; }
+        private readonly DatabaseHelper _databaseHelper;
 
         private const string CommandName = "/grow";
 
@@ -25,9 +26,9 @@ namespace pp_bot.Server.Сommands
 
         public GrowPPCommand(ITelegramBotClient client, PP_Context context)
         {
-            Client = client;
-            Context = context;
-            DatabaseHelper = new DatabaseHelper(context);
+            _client = client;
+            _context = context;
+            _databaseHelper = new DatabaseHelper(context);
         }
 
         public bool Contains(Message message)
@@ -37,15 +38,15 @@ namespace pp_bot.Server.Сommands
 
         public async Task ExecuteAsync(Message message, CancellationToken ct)
         {
-            var binding = await Context.BotUserChat
+            var binding = await _context.BotUserChat
                 .Include(b => b.User)
                 .FirstOrDefaultAsync(b => b.User.TelegramId == message.From.Id && b.UserChatsChatId == message.Chat.Id, ct);
 
             if (binding == null)
             {
-                var user = await Context.BotUsers.AsNoTracking().FirstAsync(u => u.TelegramId == message.From.Id, ct);
-                await DatabaseHelper.BindUserAndChatAsync(new Chat {ChatId = message.Chat.Id}, user);
-                await Client.SendTextMessageAsync(
+                var user = await _context.BotUsers.AsNoTracking().FirstAsync(u => u.TelegramId == message.From.Id, ct);
+                await _databaseHelper.BindUserAndChatAsync(new Chat {ChatId = message.Chat.Id}, user,ct);
+                await _client.SendTextMessageAsync(
                     message.Chat,
                     $"Подожди ещё {DelayMinutes} мин. чтобы начать ВЫРАЩИВАНИЕ!",
                     cancellationToken: ct);
@@ -65,7 +66,7 @@ namespace pp_bot.Server.Сommands
             {
                 var timeLeft = Math.Round(DelayMinutes - timePassed
                 , 2);
-                await Client.SendTextMessageAsync(
+                await _client.SendTextMessageAsync(
                     message.Chat.Id,
                     $"{binding.User.Username}, не дергай ты так, а то оторвешь, потерпи ещё {timeLeft} мин.");
                 return;
@@ -74,23 +75,36 @@ namespace pp_bot.Server.Сommands
             binding.LastManipulationTime = DateTime.Now;
 
             int ppManipulationResult = Random.Next(1, 10);
-
+            
             bool sign = Convert.ToBoolean(Random.Next(0, 3));
 
             if (binding.PPLength - ppManipulationResult < 0 || sign)
             {
                 binding.PPLength += Math.Abs(ppManipulationResult);
-                await Context.SaveChangesAsync();
-                await Client.SendTextMessageAsync(
+                binding.UserChatGrowHistory.Add(
+                    new GrowHistory()
+                    {
+                        PPLengthChange = +ppManipulationResult
+                    }
+                );
+
+                await _context.SaveChangesAsync();
+                await _client.SendTextMessageAsync(
                     message.Chat.Id,
                     $"Песюн 🍆 {binding.User.Username} вырос 📈 на {ppManipulationResult} см\n" +
-                    $"Теперь он {binding.PPLength} см");
+                    $"Теперь он {binding.PPLength} см");         
                 return;
             }
 
             binding.PPLength -= ppManipulationResult;
-            await Context.SaveChangesAsync();
-            await Client.SendTextMessageAsync(
+            binding.UserChatGrowHistory.Add(
+                    new GrowHistory()
+                    {
+                        PPLengthChange = -ppManipulationResult
+                    }
+                );
+            await _context.SaveChangesAsync();
+            await _client.SendTextMessageAsync(
                     message.Chat.Id,
                     $"Песюн 🍆 {binding.User.Username} отсох 🔻 на {ppManipulationResult} см\n" +
                     $"Тепер он {binding.PPLength} см");
