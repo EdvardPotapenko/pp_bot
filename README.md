@@ -5,7 +5,7 @@
 
 Not to mention, we are working to make this dude [GDPR](https://en.wikipedia.org/wiki/General_Data_Protection_Regulation) compliant!
 
-This project is powered by ASP.NET Core 5 and Nuke build automation system.
+This project is powered by .NET 6 and Nuke build automation system.
 
 ### Terms of use
 
@@ -25,22 +25,24 @@ Glory to Ukraine! 🇺🇦
 
 ### Prerequisites
 1. Install either the Visual Studio, the Visual Studio Code or the JetBrains Rider editor.
-2. Install the [.NET 5 SDK](https://dotnet.microsoft.com/download/dotnet/5.0) on your PC.
+2. Install the [.NET 6 SDK](https://dotnet.microsoft.com/download/dotnet/6.0) on your PC.
 3. Clone the project repository locally.
 4. Install the [Docker for Windows](https://hub.docker.com/editions/community/docker-ce-desktop-windows/) on your PC (by pressing the _Get Docker_ button).
 5. Ensure that `SVM mode` / `hypervisor` is enabled in your motherboard's BIOS.
 
 ### How To Run
-To run this project locally, open a terminal (for example, `cmd.exe` or `Git Bash`) and navigate to the project's root directory (where the `docker-compose.yml` file is located).  
-To build the containers, run the following command: `docker-compose build`  
-To run the already built containers, run: `docker-compose up`  
-You can also build the containers and run them simultaneously: `docker-compose up --build`  
-If you want the containers to run in the background (even if you close the terminal), append the `-d` argument to the end of a command:
-`docker-compose up -d` or `docker-compose up --build -d`  
-To shut the containers down while they are working in the background, run:
-`docker-compose down`  
-To shut the containers down and destroy all the data stored in a database, run:
-`docker-compose down -v`
+* Replace `PLACEHOLDER` section in botsettings.json with your Telegram bot API token.
+* If you want - you can change db setting in dbsettings.json.
+* Set address of your loki service in `Program.cs` (right now it's `http://localhost:3100`).
+* To run this project locally, open a terminal (for example, `cmd.exe` or `Git Bash`) and navigate to the project's root directory (where the `docker-compose.yml` file is located).  
+* To build the containers, run the following command: `docker-compose build`  
+* To run the already built containers, run: `docker-compose up`  
+* You can also build the containers and run them simultaneously: `docker-compose up --build`  
+* If you want the containers to run in the background (even if you close the terminal), append the `-d` argument to the end of a command: `docker-compose up -d` or `docker-compose up --build -d`  
+* To shut the containers down while they are working in the background, run: `docker-compose down`  
+* To shut the containers down and destroy all the data stored in a database, run: `docker-compose down -v`
+
+> **Temp** - enter all id's of achievements into achievements table for them to work (later seeding mechanism will be added).
 
 There is no HTTPS configured for the local web-host.
 
