@@ -7,6 +7,17 @@ Not to mention, we are working to make this dude [GDPR](https://en.wikipedia.org
 
 This project is powered by ASP.NET Core 5 and Nuke build automation system.
 
+### Terms of use
+
+By using this project or its source code, for any purpose and in any shape or form, you grant your implicit agreement to all the following statements:
+
+* You condemn Russia and its military aggression against Ukraine
+* You recognize that Russia is an occupant that unlawfully invaded a sovereign state
+* You support Ukraine's territorial integrity, including its claims over temporarily occupied territories of Crimea and Donbas
+* You reject false narratives perpetuated by Russian state propaganda
+
+Glory to Ukraine! 🇺🇦
+
 ### Build status
 | Service | Status |
 | ------- | ------ |
@@ -31,8 +42,6 @@ To shut the containers down while they are working in the background, run:
 To shut the containers down and destroy all the data stored in a database, run:
 `docker-compose down -v`
 
-As soon as Docker containers are started, you are able to call the API on 5000 port:
-`http://localhost:5000/`.  
 There is no HTTPS configured for the local web-host.
 
 ### Other
