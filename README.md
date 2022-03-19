@@ -42,8 +42,6 @@ Glory to Ukraine! 🇺🇦
 * To shut the containers down while they are working in the background, run: `docker-compose down`  
 * To shut the containers down and destroy all the data stored in a database, run: `docker-compose down -v`
 
-> **Temp** - enter all id's of achievements into achievements table for them to work (later seeding mechanism will be added).
-
 There is no HTTPS configured for the local web-host.
 
 ### Other
