@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using pp_bot.Server.Achievements;
+using pp_bot.Server.Helpers;
 using pp_bot.Server.Models;
 using pp_bot.Server.Services;
 using pp_bot.Server.Сommands;
@@ -84,12 +85,30 @@ namespace pp_bot.Server
                     }
                 })
                 .Build();
-            
-            using (var scope = host.Services.CreateScope())
+
+
+            var logger = host.Services.GetRequiredService<ILogger<DatabaseSeeder>>();
+
+            try
             {
-                var context = scope.ServiceProvider.GetRequiredService<PP_Context>();
-                if (context.Database.GetPendingMigrations().Any())
-                    context.Database.Migrate();
+
+                using (var scope = host.Services.CreateScope())
+                {
+                    var context = scope.ServiceProvider.GetRequiredService<PP_Context>();
+
+                    if (context.Database.GetPendingMigrations().Any())
+                        context.Database.Migrate();
+
+                    var achievements = scope.ServiceProvider.GetServices<IAchievable>();
+
+                    await DatabaseSeeder.EnsureAchievementsIntegrity(achievements, context);
+                }
+
+            }
+            catch(Exception ex)
+            {
+                logger.LogError(ex, "Exception occurred while applying migrations or seeding database");
+                return;
             }
             
             await host.RunAsync();

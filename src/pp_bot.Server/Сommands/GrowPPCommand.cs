@@ -18,7 +18,7 @@ namespace pp_bot.Server.Сommands
         private readonly PP_Context _context;
         private readonly ITelegramBotClient _client;
 
-        private readonly DatabaseHelper _databaseHelper;
+        private readonly PPBotRepo _databaseHelper;
 
         private const string CommandName = "/grow";
 
@@ -28,7 +28,7 @@ namespace pp_bot.Server.Сommands
         {
             _client = client;
             _context = context;
-            _databaseHelper = new DatabaseHelper(context);
+            _databaseHelper = new PPBotRepo(context);
         }
 
         public bool Contains(Message message)

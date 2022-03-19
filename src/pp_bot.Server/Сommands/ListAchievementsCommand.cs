@@ -18,7 +18,7 @@ namespace pp_bot.Server.Сommands
     {
         private readonly PP_Context _context;
         private readonly ITelegramBotClient _client;
-        private readonly DatabaseHelper _databaseHelper;
+        private readonly PPBotRepo _databaseHelper;
         private const string COMMAND_NAME = "/achievements";
         private readonly IEnumerable<IAchievable> _achievements;
 
@@ -27,7 +27,7 @@ namespace pp_bot.Server.Сommands
             _achievements = achievements;
             _context = context;
             _client = client;
-            _databaseHelper = new DatabaseHelper(context);
+            _databaseHelper = new PPBotRepo(context);
         }
 
         public async Task ExecuteAsync(Message m, CancellationToken ct)

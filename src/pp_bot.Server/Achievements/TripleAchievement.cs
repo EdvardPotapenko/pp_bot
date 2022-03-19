@@ -16,14 +16,14 @@ namespace pp_bot.Server.Achievements
         public string Description => "Получить -3 см. при выполнении комманды /grow";
         public int Id => 2;
         private readonly PP_Context _context;
-        private readonly DatabaseHelper _databaseHelper;
+        private readonly PPBotRepo _databaseHelper;
         private readonly ITelegramBotClient _client;
 
         public TripleAchievement(ITelegramBotClient client, PP_Context context)
         {
             _client = client;
             _context = context;
-            _databaseHelper = new DatabaseHelper(context);
+            _databaseHelper = new PPBotRepo(context);
         }
 
         public async Task AcquireAsync(Message m, CancellationToken ct)

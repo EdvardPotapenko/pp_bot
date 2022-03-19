@@ -9,11 +9,11 @@ using Chat = pp_bot.Server.Models.Chat;
 
 namespace pp_bot.Server.Helpers
 {
-    public sealed class DatabaseHelper
+    public sealed class PPBotRepo
     {
         private readonly PP_Context _context;
 
-        public DatabaseHelper(PP_Context context)
+        public PPBotRepo(PP_Context context)
         {
             _context = context;
         }
