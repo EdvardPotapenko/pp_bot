@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using pp_bot.Server.Models;
@@ -9,9 +10,10 @@ using pp_bot.Server.Models;
 namespace pp_bot.Server.Migrations
 {
     [DbContext(typeof(PP_Context))]
-    partial class PP_ContextModelSnapshot : ModelSnapshot
+    [Migration("20210810071006_GrowHistory")]
+    partial class GrowHistory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -43,6 +45,15 @@ namespace pp_bot.Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ImageFileName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -103,9 +114,10 @@ namespace pp_bot.Server.Migrations
             modelBuilder.Entity("pp_bot.Server.Models.GrowHistory", b =>
                 {
                     b.Property<long>("GrowHistoryId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("UserChatId")
+                        .HasColumnType("integer");
 
                     b.Property<int?>("BotUserChatChatUsersId")
                         .HasColumnType("integer");
@@ -119,7 +131,7 @@ namespace pp_bot.Server.Migrations
                     b.Property<int>("PPLengthChange")
                         .HasColumnType("integer");
 
-                    b.HasKey("GrowHistoryId");
+                    b.HasKey("GrowHistoryId", "UserChatId");
 
                     b.HasIndex("BotUserChatChatUsersId", "BotUserChatUserChatsChatId");
 

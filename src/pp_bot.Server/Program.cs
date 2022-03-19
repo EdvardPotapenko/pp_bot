@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using pp_bot.Server.Achievements;
 using pp_bot.Server.Models;
 using pp_bot.Server.Services;
 using pp_bot.Server.Сommands;
@@ -53,6 +54,12 @@ namespace pp_bot.Server
                     foreach (var commandType in baseType.Assembly.GetTypes().Where(t => baseType.IsAssignableFrom(t) && t.IsClass && t.IsPublic && !t.IsAbstract))
                     {
                         services.AddScoped(baseType, commandType);
+                    }
+
+                    baseType = typeof(IAchievable);
+                    foreach (var achievementType in baseType.Assembly.GetTypes().Where(t => baseType.IsAssignableFrom(t) && t.IsClass && t.IsPublic && !t.IsAbstract))
+                    {
+                        services.AddScoped(baseType, achievementType);
                     }
                 })
                 .ConfigureLogging((context, builder) =>
