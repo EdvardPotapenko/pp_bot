@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "pp_bot.Server": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}

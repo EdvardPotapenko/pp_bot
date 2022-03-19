@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -21,6 +22,8 @@ namespace pp_bot.Server
     {
         private static async Task Main()
         {
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
             var host = new HostBuilder()
                 .ConfigureHostConfiguration(builder =>
                 {
@@ -71,7 +74,7 @@ namespace pp_bot.Server
                     {
                         builder.AddSentry(context.Configuration["Sentry:Dsn"]);
                         
-                        var credentials = new NoAuthCredentials("https://loki.vova-lantsov.dev/");
+                        var credentials = new NoAuthCredentials("http://localhost:3100");
                         var lokiLogger = new LoggerConfiguration()
                             .MinimumLevel.Information()
                             .Enrich.FromLogContext()

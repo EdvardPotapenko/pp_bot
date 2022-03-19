@@ -10,8 +10,8 @@ using pp_bot.Server.Models;
 namespace pp_bot.Server.Migrations
 {
     [DbContext(typeof(PP_Context))]
-    [Migration("20210813092751_RemoveAchievementInfo")]
-    partial class RemoveAchievementInfo
+    [Migration("20220319122104_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
