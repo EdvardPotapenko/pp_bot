@@ -12,9 +12,10 @@ namespace pp_bot.Server.Achievements
 {
     public class EuropeAchievement : IAchievable
     {
-        public string Name => "Україна - це Європа";
-        public string Description => "Отрастить длинну больше, чем средний показатель в Европе.";
-        public int Id => 3;
+        public string Name { get; } = "Україна - це Європа";
+        public string Description { get; } = "Отрастить длинну больше, чем средний показатель в Европе.";
+        public int Id { get; } = 3;
+
         private readonly PP_Context _context;
         private readonly PPBotRepo _repo;
         private readonly ITelegramBotClient _client;

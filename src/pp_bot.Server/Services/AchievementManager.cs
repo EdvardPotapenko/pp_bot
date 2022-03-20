@@ -35,10 +35,9 @@ namespace pp_bot.Server.Services
 
             try
             {
-                throw new Exception("test achievements exception");
                 var context = scopedProvider.GetRequiredService<PP_Context>();
-                await ActualityHelper.EnsureUserIsActualAsync(m, context, ct);
                 await ActualityHelper.EnsureChatIsCreatedAsync(m, context, ct);
+                await ActualityHelper.EnsureUserIsActualAsync(m, context, ct);
             }
             catch (Exception e)
             {

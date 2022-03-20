@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using pp_bot.Server.Achievements;
 using pp_bot.Server.Helpers;
 using pp_bot.Server.Models;
 using Telegram.Bot;
@@ -36,22 +38,12 @@ namespace pp_bot.Server.Сommands
             return message.Text.StartsWith(CommandName);
         }
 
-        public async Task ExecuteAsync(Message message, CancellationToken ct)
+        public async Task ExecuteAsync(Message message, CancellationToken ct, IEnumerable<ITriggerable>? triggerables)
         {
+
             var binding = await _context.BotUserChat
                 .Include(b => b.User)
                 .FirstOrDefaultAsync(b => b.User.TelegramId == message.From.Id && b.UserChatsChatId == message.Chat.Id, ct);
-
-            if (binding == null)
-            {
-                var user = await _context.BotUsers.AsNoTracking().FirstAsync(u => u.TelegramId == message.From.Id, ct);
-                await _repo.BindUserAndChatAsync(new Chat {ChatId = message.Chat.Id}, user,ct);
-                await _client.SendTextMessageAsync(
-                    message.Chat,
-                    $"Подожди ещё {DelayMinutes} мин. чтобы начать ВЫРАЩИВАНИЕ!",
-                    cancellationToken: ct);
-                return;
-            }
 
             await ConfigurePP(binding, message);
         }

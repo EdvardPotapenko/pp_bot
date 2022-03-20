@@ -15,9 +15,9 @@ namespace pp_bot.Server.Achievements
 
     public class GloryToUkraineAchievement : IAchievable
     {
-        public string Name => "Слава Україні! 🇺🇦";
-        public string Description => "Иметь флаг Украины в имени пользователя.";
-        public int Id => 4;
+        public string Name { get; } = "Слава Україні! 🇺🇦";
+        public string Description { get; } = "Иметь флаг Украины в имени пользователя.";
+        public int Id { get; } = 4;
         private readonly PP_Context _context;
         private readonly PPBotRepo _repo;
         private readonly ITelegramBotClient _client;

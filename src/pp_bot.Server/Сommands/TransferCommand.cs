@@ -1,8 +1,12 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using pp_bot.Server.Achievements;
 using pp_bot.Server.Models;
+using pp_bot.Server.Services;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -19,8 +23,8 @@ namespace pp_bot.Server.Сommands
             _client = client;
             _context = context;
         }
-        
-        public async Task ExecuteAsync(Message message, CancellationToken ct)
+
+        public async Task ExecuteAsync(Message message, CancellationToken ct, IEnumerable<ITriggerable>? triggerables)
         {
             Task SendErrorAsync()
             {
@@ -34,7 +38,7 @@ namespace pp_bot.Server.Сommands
                     replyToMessageId: message.MessageId,
                     cancellationToken: ct);
             }
-            
+
             string[] separatedText = message.Text.Split(' ', 4);
             if (separatedText.Length < 2)
             {
@@ -66,7 +70,7 @@ namespace pp_bot.Server.Сommands
             {
                 var userByUsername = await _context.BotUsers
                     .Where(u => u.Username == separatedText[2].Substring(1))
-                    .Select(u => new {u.TelegramId})
+                    .Select(u => new { u.TelegramId })
                     .FirstOrDefaultAsync(ct);
                 if (userByUsername == null)
                 {
@@ -75,7 +79,7 @@ namespace pp_bot.Server.Сommands
                     return;
                 }
 
-                targetUserId = (int) userByUsername.TelegramId;
+                targetUserId = (int)userByUsername.TelegramId;
             }
             else if (message.ReplyToMessage != null)
             {
@@ -117,6 +121,9 @@ namespace pp_bot.Server.Сommands
             targetUserBinding.PPLength += valueToTransfer;
             binding.PPLength -= valueToTransfer;
             await _context.SaveChangesAsync(ct);
+
+            // trigger ShareingIsCaring
+            await triggerables.First(t => t.Id == 5).AcquireAsync(message, ct);
 
             string sourceUserText = $"<a href=\"tg://user?id={message.From.Id}\">{binding.User.Username}</a>";
             string targetUserText = $"<a href=\"tg://user?id={targetUserId}\">{targetUserBinding.User.Username}</a>";

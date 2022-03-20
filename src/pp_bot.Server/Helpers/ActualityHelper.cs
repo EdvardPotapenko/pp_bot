@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Telegram.Bot.Types;
+using Chat = pp_bot.Server.Models.Chat;
 
 namespace pp_bot.Server.Helpers
 {
@@ -21,15 +22,19 @@ namespace pp_bot.Server.Helpers
 
             if (user is null)
             {
-                var newUser = new BotUser
+                user = new BotUser
                 {
                     TelegramId = m.From.Id,
                     DisplayName = displayName,
                     Username = username
                 };
                 // ReSharper disable once MethodHasAsyncOverloadWithCancellation
-                context.BotUsers.Add(newUser);
+                context.BotUsers.Add(user);
                 await context.SaveChangesAsync(ct);
+
+                await BindUserAndChatAsync(context, new Chat { ChatId = m.Chat.Id }, user, ct);
+                await context.SaveChangesAsync(ct);
+
                 return;
             }
 
@@ -59,6 +64,19 @@ namespace pp_bot.Server.Helpers
                 context.Chats.Add(chat);
                 await context.SaveChangesAsync(ct);
             }
+        }
+
+        public static async Task BindUserAndChatAsync(PP_Context context, Chat chat, BotUser user, CancellationToken ct)
+        {
+            var botUserChat = new BotUserChat
+            {
+                ChatUsersId = user.Id,
+                UserChatsChatId = chat.ChatId,
+                LastManipulationTime = DateTime.Now
+            };
+            // ReSharper disable once MethodHasAsyncOverload
+            context.BotUserChat.Add(botUserChat);
+            await context.SaveChangesAsync(ct);
         }
     }
 }

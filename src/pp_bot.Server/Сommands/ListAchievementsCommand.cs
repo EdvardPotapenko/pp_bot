@@ -21,16 +21,18 @@ namespace pp_bot.Server.Сommands
         private readonly PPBotRepo _repo;
         private const string COMMAND_NAME = "/achievements";
         private readonly IEnumerable<IAchievable> _achievements;
+        private readonly IEnumerable<ITriggerable> _triggerables;
 
-        public ListAchievementsCommand(IEnumerable<IAchievable> achievements, PP_Context context, ITelegramBotClient client)
+        public ListAchievementsCommand(IEnumerable<IAchievable> achievements, IEnumerable<ITriggerable> triggerables, PP_Context context, ITelegramBotClient client)
         {
             _achievements = achievements;
+            _triggerables = triggerables;
             _context = context;
             _client = client;
             _repo = new PPBotRepo(context);
         }
 
-        public async Task ExecuteAsync(Message m, CancellationToken ct)
+        public async Task ExecuteAsync(Message m, CancellationToken ct, IEnumerable<ITriggerable>? triggerables)
         {
             var userChat = await _repo.GetUserChatAsync(m, ct);
 
@@ -54,6 +56,16 @@ namespace pp_bot.Server.Сommands
             foreach (var achievement in userChat.AcquiredAchievements)
             {
                 var achievementInfo = _achievements.FirstOrDefault(a => a.Id == achievement.Id);
+                var triggerableInfo = _triggerables.FirstOrDefault(a => a.Id == achievement.Id);
+
+                if (achievementInfo is null)
+                {
+                    achievementsMessage.Append
+                    (
+                        $"<b>{triggerableInfo.Name}</b>\n<i>{triggerableInfo.Description}</i>\nПользователей получило: {achievement.UsersAcquired.Count}\n"
+                    );
+                    continue;
+                }
 
                 achievementsMessage.Append
                 (

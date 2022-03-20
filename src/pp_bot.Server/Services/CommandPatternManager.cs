@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using pp_bot.Server.Achievements;
 using pp_bot.Server.Helpers;
 using pp_bot.Server.Models;
 using pp_bot.Server.Сommands;
@@ -30,10 +31,9 @@ namespace pp_bot.Server.Services
 
             try
             {
-                throw new Exception("test command exception");
                 var context = scopedProvider.GetRequiredService<PP_Context>();
-                await ActualityHelper.EnsureUserIsActualAsync(m, context, ct);
                 await ActualityHelper.EnsureChatIsCreatedAsync(m, context, ct);
+                await ActualityHelper.EnsureUserIsActualAsync(m, context, ct);
             }
             catch (Exception e)
             {
@@ -43,13 +43,14 @@ namespace pp_bot.Server.Services
             }
 
             IEnumerable<IChatAction> commands = scopedProvider.GetServices<IChatAction>();
+            IEnumerable<ITriggerable> triggerables = scopedProvider.GetServices<ITriggerable>();
             foreach (var command in commands)
             {
                 if (command.Contains(m))
                 {
                     try
                     {
-                        await command.ExecuteAsync(m, ct);
+                        await command.ExecuteAsync(m, ct, triggerables);
                     }
                     catch (Exception e)
                     {

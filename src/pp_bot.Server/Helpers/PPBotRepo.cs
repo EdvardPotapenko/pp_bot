@@ -54,18 +54,5 @@ namespace pp_bot.Server.Helpers
                              ct
                          );
         }
-
-        public async Task BindUserAndChatAsync(Chat chat, BotUser user, CancellationToken ct)
-        {
-            var botUserChat = new BotUserChat
-            {
-                ChatUsersId = user.Id,
-                UserChatsChatId = chat.ChatId,
-                LastManipulationTime = DateTime.Now
-            };
-            // ReSharper disable once MethodHasAsyncOverload
-            _context.BotUserChat.Add(botUserChat);
-            await _context.SaveChangesAsync(ct);
-        }
     }
 }

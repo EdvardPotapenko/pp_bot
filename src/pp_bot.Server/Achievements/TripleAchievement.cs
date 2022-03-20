@@ -12,9 +12,11 @@ namespace pp_bot.Server.Achievements
 {
     public class TripleAchievement : IAchievable
     {
-        public string Name => "ЙЕС, МИНУС ТРИ! ЮХУ!";
-        public string Description => "Получить -3 см. при выполнении комманды /grow";
-        public int Id => 2;
+        public string Name { get; } = "ЙЕС, МИНУС ТРИ! ЮХУ!";
+        public string Description { get; } = "Получить -3 см. при выполнении комманды /grow";
+        public int Id { get; } = 2;
+
+
         private readonly PP_Context _context;
         private readonly PPBotRepo _repo;
         private readonly ITelegramBotClient _client;

@@ -1,6 +1,8 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using pp_bot.Server.Achievements;
 using pp_bot.Server.Helpers;
 using pp_bot.Server.Models;
 using Telegram.Bot;
@@ -28,7 +30,7 @@ namespace pp_bot.Server.Сommands
             return message.Text.StartsWith(CommandName);
         }
 
-        public async Task ExecuteAsync(Message message, CancellationToken ct)
+        public async Task ExecuteAsync(Message message, CancellationToken ct, IEnumerable<ITriggerable>? triggerables)
         {
             await ShowScoreAsync(message, ct);
         }

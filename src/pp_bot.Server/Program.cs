@@ -73,6 +73,12 @@ namespace pp_bot.Server
                         {
                             services.AddScoped(baseType, achievementType);
                         }
+
+                        baseType = typeof(ITriggerable);
+                        foreach (var achievementType in baseType.Assembly.GetTypes().Where(t => baseType.IsAssignableFrom(t) && t.IsClass && t.IsPublic && !t.IsAbstract))
+                        {
+                            services.AddScoped(baseType, achievementType);
+                        }
                     })               
                     .Build();
 
@@ -84,8 +90,10 @@ namespace pp_bot.Server
                         context.Database.Migrate();
 
                     var achievements = scope.ServiceProvider.GetServices<IAchievable>();
+                    var triggerables = scope.ServiceProvider.GetServices<ITriggerable>();
 
-                    await DatabaseSeedingHelper.EnsureAchievementsIntegrity(achievements, context);
+
+                    await DatabaseSeedingHelper.EnsureAchievementsIntegrity(achievements, triggerables, context);
                 }
 
                 await host.RunAsync();
