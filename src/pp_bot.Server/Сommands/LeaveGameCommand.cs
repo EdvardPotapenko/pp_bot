@@ -12,7 +12,7 @@ namespace pp_bot.Server.Сommands
     {
         private readonly PP_Context _context;
         private readonly ITelegramBotClient _client;
-        private readonly PPBotRepo _databaseHelper;
+        private readonly PPBotRepo _repo;
 
         private const string CommandName = "/leave";
 
@@ -20,7 +20,7 @@ namespace pp_bot.Server.Сommands
         {
             _client = client;
             _context = context;
-            _databaseHelper = new PPBotRepo(context);
+            _repo = new PPBotRepo(context);
         }
 
         public bool Contains(Message message)
@@ -32,7 +32,7 @@ namespace pp_bot.Server.Сommands
         {
             try
             {
-                await _databaseHelper.DeleteUserAsync(message,ct);
+                await _repo.DeleteUserAsync(message,ct);
 
                 await _client.SendTextMessageAsync(
                     message.Chat.Id,

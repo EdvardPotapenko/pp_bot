@@ -12,7 +12,7 @@ namespace pp_bot.Server.Сommands
     {
         private readonly PP_Context _context;
         private readonly ITelegramBotClient _client;
-        private readonly PPBotRepo _databaseHelper;
+        private readonly PPBotRepo _repo;
 
         private const string CommandName = "/score";
 
@@ -20,7 +20,7 @@ namespace pp_bot.Server.Сommands
         {
             _client = client;
             _context = context;
-            _databaseHelper = new PPBotRepo(_context);
+            _repo = new PPBotRepo(_context);
         }
 
         public bool Contains(Message message)
@@ -35,7 +35,7 @@ namespace pp_bot.Server.Сommands
 
         private async Task ShowScoreAsync(Message message, CancellationToken ct)
         {
-            var chat = await _databaseHelper.GetChatAsync(message,ct);
+            var chat = await _repo.GetChatAsync(message,ct);
 
             if (chat.ChatUsers.Count == 0)
             {

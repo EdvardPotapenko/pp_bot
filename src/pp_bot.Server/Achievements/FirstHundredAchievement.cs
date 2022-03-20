@@ -15,14 +15,14 @@ namespace pp_bot.Server.Achievements
         public string Description => "Отрастить длинну агрегата в 100 см.";
         public int Id => 1;
         private readonly PP_Context _context;
-        private readonly PPBotRepo _databaseHelper;
+        private readonly PPBotRepo _repo;
         private readonly ITelegramBotClient _client;
 
         public FirstHundredAchievement(ITelegramBotClient client, PP_Context context)
         {
             _client = client;
             _context = context;
-            _databaseHelper = new PPBotRepo(context);
+            _repo = new PPBotRepo(context);
         }
         public async Task AcquireAsync(Message m, CancellationToken ct)
         {
@@ -31,7 +31,7 @@ namespace pp_bot.Server.Achievements
             if (achievement == null)
                 throw new NotImplementedException($"Achievement with id {Id} was not found");
 
-            var userChat = await _databaseHelper.GetUserChatAsync(m,ct);
+            var userChat = await _repo.GetUserChatAsync(m,ct);
 
             if(userChat.AcquiredAchievements.Contains(achievement))
                 return;

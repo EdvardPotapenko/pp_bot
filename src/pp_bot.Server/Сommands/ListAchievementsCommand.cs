@@ -18,7 +18,7 @@ namespace pp_bot.Server.Сommands
     {
         private readonly PP_Context _context;
         private readonly ITelegramBotClient _client;
-        private readonly PPBotRepo _databaseHelper;
+        private readonly PPBotRepo _repo;
         private const string COMMAND_NAME = "/achievements";
         private readonly IEnumerable<IAchievable> _achievements;
 
@@ -27,12 +27,12 @@ namespace pp_bot.Server.Сommands
             _achievements = achievements;
             _context = context;
             _client = client;
-            _databaseHelper = new PPBotRepo(context);
+            _repo = new PPBotRepo(context);
         }
 
         public async Task ExecuteAsync(Message m, CancellationToken ct)
         {
-            var userChat = await _databaseHelper.GetUserChatAsync(m, ct);
+            var userChat = await _repo.GetUserChatAsync(m, ct);
 
             if(userChat.AcquiredAchievements.Count == 0)
             {

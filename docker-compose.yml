@@ -7,6 +7,9 @@ x-host-config: &host_config
   environment:
     - ASPNETCORE_ENVIRONMENT=Development
 
+networks:
+  ppbot:
+
 services:
   ppbot:
     <<: *restart_policy
@@ -20,6 +23,8 @@ services:
       dockerfile: src/pp_bot.Server/Dockerfile
     volumes:
       - ~/.vsdbg:/remote_debugger:rw
+    networks:
+      - ppbot
   
   postgres:
     container_name: pp_bot_postgres
@@ -31,3 +36,22 @@ services:
       - POSTGRES_DB=pp_bot
       - POSTGRES_PASSWORD=_PP_IS_C23
     command: ["-c", "shared_buffers=512MB", "-c", "max_connections=500"]
+    networks:
+      - ppbot
+
+  loki:
+    container_name: loki
+    image: grafana/loki:2.4.1
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - ppbot
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    networks:
+      - ppbot

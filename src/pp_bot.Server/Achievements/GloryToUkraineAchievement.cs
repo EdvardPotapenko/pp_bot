@@ -1,25 +1,28 @@
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using pp_bot.Server.Helpers;
 using pp_bot.Server.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
 namespace pp_bot.Server.Achievements
 {
-    public class EuropeAchievement : IAchievable
+
+    public class GloryToUkraineAchievement : IAchievable
     {
-        public string Name => "Україна - це Європа";
-        public string Description => "Отрастить длинну больше, чем средний показатель в Европе.";
-        public int Id => 3;
+        public string Name => "Слава Україні! 🇺🇦";
+        public string Description => "Иметь флаг Украины в имени пользователя.";
+        public int Id => 4;
         private readonly PP_Context _context;
         private readonly PPBotRepo _repo;
         private readonly ITelegramBotClient _client;
- 
-        public EuropeAchievement(ITelegramBotClient client, PP_Context context)
+
+        public GloryToUkraineAchievement(ITelegramBotClient client, PP_Context context)
         {
             _client = client;
             _context = context;
@@ -32,15 +35,12 @@ namespace pp_bot.Server.Achievements
             if (achievement == null)
                 throw new NotImplementedException($"Achievement with id {Id} was not found");
 
-            var userChat = await _repo.GetUserChatAsync(m,ct);
+            var userChat = await _repo.GetUserChatAsync(m, ct);
 
-            if(achievement == null)
-                throw new NotImplementedException($"Achievement with id {Id} was not found");
-
-            if(userChat.AcquiredAchievements.Contains(achievement))
+            if (userChat.AcquiredAchievements.Contains(achievement))
                 return;
 
-            if(userChat.PPLength >= 14)
+            if (userChat.User.DisplayName.Contains("🇺🇦"))
             {
                 userChat.AcquiredAchievements.Add(achievement);
                 achievement.UsersAcquired.Add(userChat);

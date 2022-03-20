@@ -18,7 +18,7 @@ namespace pp_bot.Server.Сommands
         private readonly PP_Context _context;
         private readonly ITelegramBotClient _client;
 
-        private readonly PPBotRepo _databaseHelper;
+        private readonly PPBotRepo _repo;
 
         private const string CommandName = "/grow";
 
@@ -28,7 +28,7 @@ namespace pp_bot.Server.Сommands
         {
             _client = client;
             _context = context;
-            _databaseHelper = new PPBotRepo(context);
+            _repo = new PPBotRepo(context);
         }
 
         public bool Contains(Message message)
@@ -45,7 +45,7 @@ namespace pp_bot.Server.Сommands
             if (binding == null)
             {
                 var user = await _context.BotUsers.AsNoTracking().FirstAsync(u => u.TelegramId == message.From.Id, ct);
-                await _databaseHelper.BindUserAndChatAsync(new Chat {ChatId = message.Chat.Id}, user,ct);
+                await _repo.BindUserAndChatAsync(new Chat {ChatId = message.Chat.Id}, user,ct);
                 await _client.SendTextMessageAsync(
                     message.Chat,
                     $"Подожди ещё {DelayMinutes} мин. чтобы начать ВЫРАЩИВАНИЕ!",

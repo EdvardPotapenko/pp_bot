@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace pp_bot.Server.Helpers
 {
-    internal class DatabaseSeeder
+    internal class DatabaseSeedingHelper
     {
         public async static Task EnsureAchievementsIntegrity(IEnumerable<IAchievable> achievements, PP_Context context)
         {

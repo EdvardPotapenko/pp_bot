@@ -12,7 +12,6 @@ using pp_bot.Server.Models;
 using pp_bot.Server.Services;
 using pp_bot.Server.Сommands;
 using Serilog;
-using Serilog.Sinks.Loki;
 using Telegram.Bot;
 using Telegram.Bot.Extensions.Polling;
 // ReSharper disable MethodHasAsyncOverload
@@ -25,72 +24,57 @@ namespace pp_bot.Server
         {
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
-            var host = new HostBuilder()
-                .ConfigureHostConfiguration(builder =>
-                {
-                    builder.AddEnvironmentVariables("ASPNETCORE_");
-                })
-                .ConfigureAppConfiguration((context, builder) =>
-                {
-                    var env = context.HostingEnvironment.EnvironmentName;
-                    builder
-                        .AddJsonFile("botsettings.json", false, false)
-                        .AddJsonFile($"botsettings.{env}.json", true, false)
-                        .AddJsonFile("dbsettings.json", false, false)
-                        .AddJsonFile($"dbsettings.{env}.json", true, false)
-                        .AddJsonFile("sentrysettings.json", false, false)
-                        .AddJsonFile($"sentrysettings.{env}.json", true, false);
-                })
-                .ConfigureServices((context, services) =>
-                {
-                    var config = context.Configuration;
-                    services.AddLogging();
-                    services.AddSingleton<CommandPatternManager>();
-                    services.AddSingleton<IAchievementManager, AchievementManager>();
-                    services.AddSingleton<ITelegramBotClient>(
-                        new TelegramBotClient(config["BOT_TOKEN"]));
-                    services.AddSingleton<IUpdateHandler, BotHandler>();
-                    services.AddHostedService<BotHandlerService>();
-                    services.AddDbContext<PP_Context>(options => options
-                        .UseNpgsql(config.GetConnectionString("DB_CONN_STR")));
-
-                    var baseType = typeof(IChatAction);
-                    foreach (var commandType in baseType.Assembly.GetTypes().Where(t => baseType.IsAssignableFrom(t) && t.IsClass && t.IsPublic && !t.IsAbstract))
-                    {
-                        services.AddScoped(baseType, commandType);
-                    }
-
-                    baseType = typeof(IAchievable);
-                    foreach (var achievementType in baseType.Assembly.GetTypes().Where(t => baseType.IsAssignableFrom(t) && t.IsClass && t.IsPublic && !t.IsAbstract))
-                    {
-                        services.AddScoped(baseType, achievementType);
-                    }
-                })
-                .ConfigureLogging((context, builder) =>
-                {
-                    builder.AddConfiguration(context.Configuration);
-                    builder.AddConsole();
-                    builder.AddDebug();
-                    if (context.HostingEnvironment.IsProduction())
-                    {
-                        builder.AddSentry(context.Configuration["Sentry:Dsn"]);
-                        
-                        var credentials = new NoAuthCredentials("http://localhost:3100");
-                        var lokiLogger = new LoggerConfiguration()
-                            .MinimumLevel.Information()
-                            .Enrich.FromLogContext()
-                            .WriteTo.LokiHttp(credentials)
-                            .CreateLogger();
-                        builder.AddSerilog(lokiLogger);
-                    }
-                })
-                .Build();
-
-
-            var logger = host.Services.GetRequiredService<ILogger<DatabaseSeeder>>();
+            Log.Logger = new LoggerConfiguration()
+                         .WriteTo.File($"critical_logs.txt")
+                         .WriteTo.Console()
+                         .CreateBootstrapLogger();
 
             try
             {
+                var host = new HostBuilder()
+                    .ConfigureLogging((ctx, cfg) => cfg.ClearProviders())
+                    .UseSerilog((ctx, cfg) => cfg.ReadFrom.Configuration(ctx.Configuration))
+                    .ConfigureHostConfiguration(builder =>
+                    {
+                        builder.AddEnvironmentVariables("ASPNETCORE_");
+                    })
+                    .ConfigureAppConfiguration((context, builder) =>
+                    {
+                        var env = context.HostingEnvironment.EnvironmentName;
+                        builder
+                            .AddJsonFile("botsettings.json", false, false)
+                            .AddJsonFile($"botsettings.{env}.json", true, false)
+                            .AddJsonFile("dbsettings.json", false, false)
+                            .AddJsonFile($"dbsettings.{env}.json", true, false)
+                            .AddJsonFile($"lokisettings.json", true, false)
+                            .AddJsonFile($"lokisettings.{env}.json", true, false);
+                    })
+                    .ConfigureServices((context, services) =>
+                    {
+                        var config = context.Configuration;
+                        services.AddLogging();
+                        services.AddSingleton<CommandPatternManager>();
+                        services.AddSingleton<IAchievementManager, AchievementManager>();
+                        services.AddSingleton<ITelegramBotClient>(
+                            new TelegramBotClient(config["BOT_TOKEN"]));
+                        services.AddSingleton<IUpdateHandler, BotHandler>();
+                        services.AddHostedService<BotHandlerService>();
+                        services.AddDbContext<PP_Context>(options => options
+                            .UseNpgsql(config.GetConnectionString("DB_CONN_STR")));
+
+                        var baseType = typeof(IChatAction);
+                        foreach (var commandType in baseType.Assembly.GetTypes().Where(t => baseType.IsAssignableFrom(t) && t.IsClass && t.IsPublic && !t.IsAbstract))
+                        {
+                            services.AddScoped(baseType, commandType);
+                        }
+
+                        baseType = typeof(IAchievable);
+                        foreach (var achievementType in baseType.Assembly.GetTypes().Where(t => baseType.IsAssignableFrom(t) && t.IsClass && t.IsPublic && !t.IsAbstract))
+                        {
+                            services.AddScoped(baseType, achievementType);
+                        }
+                    })               
+                    .Build();
 
                 using (var scope = host.Services.CreateScope())
                 {
@@ -101,17 +85,17 @@ namespace pp_bot.Server
 
                     var achievements = scope.ServiceProvider.GetServices<IAchievable>();
 
-                    await DatabaseSeeder.EnsureAchievementsIntegrity(achievements, context);
+                    await DatabaseSeedingHelper.EnsureAchievementsIntegrity(achievements, context);
                 }
 
+                await host.RunAsync();
+
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                logger.LogError(ex, "Exception occurred while applying migrations or seeding database");
+                Log.Logger.Fatal(ex, "Fatal exception occured");
                 return;
             }
-            
-            await host.RunAsync();
         }
     }
 }
