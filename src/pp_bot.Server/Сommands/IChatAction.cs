@@ -4,12 +4,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Telegram.Bot.Types;
 
-namespace pp_bot.Server.Сommands 
-{
-    public interface IChatAction 
-    {
-       Task ExecuteAsync(Message message, CancellationToken ct, IEnumerable<ITriggerable>? triggerables);
+namespace pp_bot.Server.Сommands;
 
-       bool Contains(Message message);
-    }
+public interface IChatAction 
+{
+	Task ExecuteAsync(Message message, CancellationToken ct, IEnumerable<ITriggerable>? triggerables);
+
+	bool Contains(Message message);
 }

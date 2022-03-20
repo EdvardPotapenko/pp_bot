@@ -1,16 +1,14 @@
-using System;
 using System.Collections.Generic;
 
-namespace pp_bot.Server.Models
+namespace pp_bot.Server.Models;
+
+public sealed class BotUser
 {
-    public sealed class BotUser
-    {
-        public int Id { get; set; }
-        public string Username { get; set; }
+    public int Id { get; set; }
+    public string Username { get; set; }
 
-        public string DisplayName { get; set; }
-        public long TelegramId { get; init; }
+    public string DisplayName { get; set; }
+    public long TelegramId { get; init; }
 
-        public List<BotUserChat> UserChats { get; set; }
-    }
+    public List<BotUserChat> UserChats { get; set; }
 }
