@@ -1,7 +1,7 @@
 # pp_bot
 ## open source telegram bot for growing your pp
 
-> Sometimes **we all just need** our ego to **GROW** - so what a better way you can achieve this - than growing your virtual pp with this *brand new open source c# .net core telegram bot.*
+> Sometimes **we all just need** our ego to **GROW** - so what a better way you can achieve this, than growing your virtual pp with this *brand new open source c# .net core telegram bot.*
 
 Not to mention, we are working to make this dude [GDPR](https://en.wikipedia.org/wiki/General_Data_Protection_Regulation) compliant!
 
@@ -30,11 +30,15 @@ Glory to Ukraine! 🇺🇦
 4. Install the [Docker for Windows](https://hub.docker.com/editions/community/docker-ce-desktop-windows/) on your PC (by pressing the _Get Docker_ button).
 5. Ensure that `SVM mode` / `hypervisor` is enabled in your motherboard's BIOS.
 
-### How To Run
+### Configuration
 * Replace `PLACEHOLDER` section in botsettings.json with your Telegram bot API token.
 * If you want - you can change db setting in dbsettings.json.
-* Set address of your loki service in `Program.cs` (right now it's `http://localhost:3100`).
-* To run this project locally, open a terminal (for example, `cmd.exe` or `Git Bash`) and navigate to the project's root directory (where the `docker-compose.yml` file is located).  
+> By default, **loki and grafana are in same docker-compose file** (hence same network too), but if you want to roll out those services elsewhere - change 
+loki uri in lokisettings.json file (default is `http://loki:3100`) and docker-compose appropriately. **Same thing with Postgres DB.**
+
+
+### How to run app
+* To run this project locally, open a terminal (for example, `cmd.exe` or `Git Bash`) and navigate to the project's root directory (where the `docker-compose.yml` file is located).
 * To build the containers, run the following command: `docker-compose build`  
 * To run the already built containers, run: `docker-compose up`  
 * You can also build the containers and run them simultaneously: `docker-compose up --build`  
