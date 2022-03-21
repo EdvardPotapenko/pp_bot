@@ -34,9 +34,6 @@ public class EuropeAchievement : IAchievable
 
         var userChat = await _repo.GetUserChatAsync(m,ct);
 
-        if(achievement == null)
-            throw new NotImplementedException($"Achievement with id {Id} was not found");
-
         if(userChat.AcquiredAchievements.Contains(achievement))
             return;
 
