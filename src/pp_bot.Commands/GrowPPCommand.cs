@@ -1,5 +1,5 @@
+using System.Composition;
 using Microsoft.EntityFrameworkCore;
-using pp_bot.Abstractions;
 using pp_bot.Data;
 using pp_bot.Data.Models;
 using Telegram.Bot;
@@ -9,7 +9,8 @@ using Telegram.Bot.Types;
 
 namespace pp_bot.Commands;
 
-public class GrowPPCommand : IChatAction
+[Export(typeof(IChatAction))]
+public sealed class GrowPPCommand : IChatAction
 {
     private Random Random { get; } = new();
     private readonly PP_Context _context;
@@ -33,7 +34,7 @@ public class GrowPPCommand : IChatAction
         return message.Text.StartsWith(CommandName);
     }
 
-    public async Task ExecuteAsync(Message message, CancellationToken ct, IEnumerable<ITriggerable>? triggerables)
+    public async Task ExecuteAsync(Message message, CancellationToken ct)
     {
 
         var binding = await _context.BotUserChat

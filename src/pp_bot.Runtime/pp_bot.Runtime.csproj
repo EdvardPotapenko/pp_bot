@@ -5,11 +5,15 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <LangVersion>10.0</LangVersion>
+        <NoWarn>CS8618</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\pp_bot.Achievements.Abstractions\pp_bot.Achievements.Abstractions.csproj" />
-      <ProjectReference Include="..\pp_bot.Data\pp_bot.Data.csproj" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\pp_bot.Runtime.Abstractions\pp_bot.Runtime.Abstractions.csproj" />
     </ItemGroup>
 
 </Project>

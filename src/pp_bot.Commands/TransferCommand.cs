@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using pp_bot.Abstractions;
+﻿using System.Composition;
+using Microsoft.EntityFrameworkCore;
 using pp_bot.Data;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -7,6 +7,7 @@ using Telegram.Bot.Types.Enums;
 
 namespace pp_bot.Commands;
 
+[Export(typeof(IChatAction))]
 public sealed class TransferCommand : IChatAction
 {
     private readonly ITelegramBotClient _client;
@@ -18,7 +19,7 @@ public sealed class TransferCommand : IChatAction
         _context = context;
     }
 
-    public async Task ExecuteAsync(Message message, CancellationToken ct, IEnumerable<ITriggerable>? triggerables)
+    public async Task ExecuteAsync(Message message, CancellationToken ct)
     {
         Task SendErrorAsync()
         {
@@ -117,8 +118,8 @@ public sealed class TransferCommand : IChatAction
         binding.PPLength -= valueToTransfer;
         await _context.SaveChangesAsync(ct);
 
-        // trigger ShareingIsCaring
-        await triggerables.First(t => t.Id == 5).AcquireAsync(message, ct);
+        // TODO trigger SharingIsCaring
+        //await triggerables.First(t => t.Id == 5).AcquireAsync(message, ct);
 
         string sourceUserText = $"<a href=\"tg://user?id={message.From.Id}\">{binding.User.Username}</a>";
         string targetUserText = $"<a href=\"tg://user?id={targetUserId}\">{targetUserBinding.User.Username}</a>";

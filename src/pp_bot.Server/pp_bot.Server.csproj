@@ -17,7 +17,6 @@
     <PackageReference Include="Sentry.Extensions.Logging" Version="3.15.0" />
     <PackageReference Include="Serilog.AspNetCore" Version="5.0.0" />
     <PackageReference Include="Serilog.Sinks.Grafana.Loki" Version="7.1.0" />
-    <PackageReference Include="Telegram.Bot" Version="17.0.0" />
     <PackageReference Include="Telegram.Bot.Extensions.Polling" Version="1.0.2" />
   </ItemGroup>
 
@@ -29,6 +28,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\pp_bot.Data\pp_bot.Data.csproj" />
+    <ProjectReference Include="..\pp_bot.Runtime\pp_bot.Runtime.csproj" />
   </ItemGroup>
 
 </Project>

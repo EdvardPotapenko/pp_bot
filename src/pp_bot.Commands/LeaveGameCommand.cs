@@ -1,10 +1,11 @@
-using pp_bot.Abstractions;
+using System.Composition;
 using pp_bot.Data;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
 namespace pp_bot.Commands;
 
+[Export(typeof(IChatAction))]
 public sealed class LeaveGameCommand : IChatAction
 {
     private readonly PP_Context _context;
@@ -25,7 +26,7 @@ public sealed class LeaveGameCommand : IChatAction
         return message.Text.StartsWith(CommandName);
     }
 
-    public async Task ExecuteAsync(Message message, CancellationToken ct, IEnumerable<ITriggerable>? triggerables)
+    public async Task ExecuteAsync(Message message, CancellationToken ct)
     {
         try
         {

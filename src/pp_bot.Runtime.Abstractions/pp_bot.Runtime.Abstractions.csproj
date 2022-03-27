@@ -5,11 +5,12 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <LangVersion>10.0</LangVersion>
+        <RootNamespace>pp_bot.Runtime</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\pp_bot.Achievements.Abstractions\pp_bot.Achievements.Abstractions.csproj" />
-      <ProjectReference Include="..\pp_bot.Data\pp_bot.Data.csproj" />
+        <ProjectReference Include="..\pp_bot.Abstractions\pp_bot.Abstractions.csproj" />
+        <ProjectReference Include="..\pp_bot.Achievements.Abstractions\pp_bot.Achievements.Abstractions.csproj" />
     </ItemGroup>
 
 </Project>

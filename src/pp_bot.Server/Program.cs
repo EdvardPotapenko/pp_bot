@@ -3,9 +3,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using pp_bot.Abstractions;
 using pp_bot.Data;
 using pp_bot.Data.Helpers;
+using pp_bot.Runtime;
 using pp_bot.Server.Services;
 using Serilog;
 using Telegram.Bot;
@@ -36,7 +36,7 @@ try
                 .AddJsonFile($"botsettings.{env}.json", true, false)
                 .AddJsonFile("dbsettings.json", false, false)
                 .AddJsonFile($"dbsettings.{env}.json", true, false)
-                .AddJsonFile($"lokisettings.json", false, false)
+                .AddJsonFile("lokisettings.json", false, false)
                 .AddJsonFile($"lokisettings.{env}.json", true, false);
         })
         .ConfigureServices((context, services) =>
@@ -52,24 +52,6 @@ try
             services.AddDbContext<PP_Context>(options => options
                 .UseNpgsql(config.GetConnectionString("DB_CONN_STR"),
                     npgsql => npgsql.MigrationsAssembly("pp_bot.Data")));
-
-            var baseType = typeof(IChatAction);
-            foreach (var commandType in baseType.Assembly.GetTypes().Where(t => baseType.IsAssignableFrom(t) && t.IsClass && t.IsPublic && !t.IsAbstract))
-            {
-                services.AddScoped(baseType, commandType);
-            }
-
-            baseType = typeof(IAchievable);
-            foreach (var achievementType in baseType.Assembly.GetTypes().Where(t => baseType.IsAssignableFrom(t) && t.IsClass && t.IsPublic && !t.IsAbstract))
-            {
-                services.AddScoped(baseType, achievementType);
-            }
-
-            baseType = typeof(ITriggerable);
-            foreach (var achievementType in baseType.Assembly.GetTypes().Where(t => baseType.IsAssignableFrom(t) && t.IsClass && t.IsPublic && !t.IsAbstract))
-            {
-                services.AddScoped(baseType, achievementType);
-            }
         })               
         .Build();
 
@@ -80,11 +62,8 @@ try
         if (context.Database.GetPendingMigrations().Any())
             context.Database.Migrate();
 
-        var achievements = scope.ServiceProvider.GetServices<IAchievable>();
-        var triggerables = scope.ServiceProvider.GetServices<ITriggerable>();
-
-
-        await DatabaseSeedingHelper.EnsureAchievementsIntegrity(achievements, triggerables, context);
+        var achievements = scope.ServiceProvider.GetRequiredService<IAchievementsLoader>();
+        await DatabaseSeedingHelper.EnsureAchievementsIntegrity(achievements, context);
     }
 
     await host.RunAsync();

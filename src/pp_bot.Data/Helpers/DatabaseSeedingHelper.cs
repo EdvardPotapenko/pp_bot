@@ -1,24 +1,30 @@
-﻿using pp_bot.Abstractions;
+﻿using System.Linq;
+using pp_bot.Achievements;
 using pp_bot.Data.Models;
+using pp_bot.Runtime;
 
 namespace pp_bot.Data.Helpers;
 
 public static class DatabaseSeedingHelper
 {
-    public static async Task EnsureAchievementsIntegrity(IEnumerable<IAchievable> achievements, IEnumerable<ITriggerable> triggerables, PP_Context context)
+    public static async Task EnsureAchievementsIntegrity(IAchievementsLoader achievementsLoader, PP_Context context)
     {
-        foreach (var achievement in achievements)
+        foreach (var achievementFactory in achievementsLoader.AchievableFactory)
         {
-            if (context.Achievements.Any(a => a.Id == achievement.Id))
+            var achievementMetadata = achievementFactory.Metadata;
+            if (context.Achievements.Any(a => a.Id == achievementMetadata.Id))
                 continue;
-            await context.AddAsync(new Achievement { Id = achievement.Id });
+            await context.AddAsync(new Achievement { Id = achievementMetadata.Id });
         }
-        foreach (var triggerable in triggerables)
+        
+        foreach (var triggerableFactory in achievementsLoader.TriggerableFactory)
         {
-            if (context.Achievements.Any(a => a.Id == triggerable.Id))
+            var achievementMetadata = triggerableFactory.Metadata;
+            if (context.Achievements.Any(a => a.Id == achievementMetadata.Id))
                 continue;
-            await context.AddAsync(new Achievement { Id = triggerable.Id });
+            await context.AddAsync(new Achievement { Id = achievementMetadata.Id });
         }
+        
         await context.SaveChangesAsync();
     }
 }

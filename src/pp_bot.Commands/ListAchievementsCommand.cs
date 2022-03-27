@@ -1,33 +1,30 @@
+using System.Composition;
 using System.Text;
-using pp_bot.Abstractions;
+using pp_bot.Achievements.Exceptions;
 using pp_bot.Data;
+using pp_bot.Runtime;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
 namespace pp_bot.Commands;
 
-/// <summary>
-/// Handles achievements command
-/// </summary>
-public class ListAchievementsCommand : IChatAction
+[Export(typeof(IChatAction))]
+public sealed class ListAchievementsCommand : IChatAction
 {
-    private readonly PP_Context _context;
+    private readonly IAchievementsContext _achievementsContext;
     private readonly ITelegramBotClient _client;
     private readonly PPBotRepo _repo;
-    private const string COMMAND_NAME = "/achievements";
-    private readonly IEnumerable<IAchievable> _achievements;
-    private readonly IEnumerable<ITriggerable> _triggerables;
+    
+    private const string CommandName = "/achievements";
 
-    public ListAchievementsCommand(IEnumerable<IAchievable> achievements, IEnumerable<ITriggerable> triggerables, PP_Context context, ITelegramBotClient client)
+    public ListAchievementsCommand(IAchievementsContext achievementsContext, PPBotRepo repo, ITelegramBotClient client)
     {
-        _achievements = achievements;
-        _triggerables = triggerables;
-        _context = context;
+        _achievementsContext = achievementsContext;
         _client = client;
-        _repo = new PPBotRepo(context);
+        _repo = repo;
     }
 
-    public async Task ExecuteAsync(Message m, CancellationToken ct, IEnumerable<ITriggerable>? triggerables)
+    public async Task ExecuteAsync(Message m, CancellationToken ct)
     {
         var userChat = await _repo.GetUserChatAsync(m, ct);
 
@@ -50,34 +47,23 @@ public class ListAchievementsCommand : IChatAction
         // Concat all achievement info in one string message
         foreach (var achievement in userChat.AcquiredAchievements)
         {
-            var achievementInfo = _achievements.FirstOrDefault(a => a.Id == achievement.Id);
-            var triggerableInfo = _triggerables.FirstOrDefault(a => a.Id == achievement.Id);
+            var achievementMetadata = _achievementsContext.GetAchievementMetadata(achievement.Id);
+            if (achievementMetadata == null)
+                throw new AchievementNotFoundException(achievement.Id);
 
-            if (achievementInfo is null)
-            {
-                achievementsMessage.Append
-                (
-                    $"<b>{triggerableInfo.Name}</b>\n<i>{triggerableInfo.Description}</i>\nПользователей получило: {achievement.UsersAcquired.Count}\n"
-                );
-                continue;
-            }
-
-            achievementsMessage.Append
-            (
-                $"<b>{achievementInfo.Name}</b>\n<i>{achievementInfo.Description}</i>\nПользователей получило: {achievement.UsersAcquired.Count}\n"
-            );
+            achievementsMessage.Append(
+                $"<b>{achievementMetadata.Name}</b>\n<i>{achievementMetadata.Description}</i>\n" +
+                $"Пользователей получило: {achievement.UsersAcquired.Count}\n");
         }
         
-        await _client.SendTextMessageAsync
-        (
+        await _client.SendTextMessageAsync(
             m.Chat.Id,
             achievementsMessage.ToString(),
             Telegram.Bot.Types.Enums.ParseMode.Html,
-            cancellationToken: ct
-        );
+            cancellationToken: ct);
     }
     public bool Contains(Message message)
     {
-        return message.Text.StartsWith(COMMAND_NAME);
+        return message.Text?.StartsWith(CommandName) ?? false;
     }
 }

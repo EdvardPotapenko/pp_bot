@@ -1,7 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using pp_bot.Abstractions;
+using pp_bot.Achievements.Exceptions;
 using pp_bot.Data;
+using pp_bot.Runtime;
 using pp_bot.Server.Helpers;
 using Telegram.Bot.Types;
 
@@ -11,11 +12,16 @@ public sealed class CommandPatternManager
 {
     private readonly IServiceProvider _provider;
     private readonly ILoggerFactory _loggerFactory;
+    private readonly IAchievementsContext _achievementsContext;
+    private readonly ICommandsLoader _commandsLoader;
 
-    public CommandPatternManager(IServiceProvider provider, ILoggerFactory loggerFactory)
+    public CommandPatternManager(IServiceProvider provider, ILoggerFactory loggerFactory,
+        IAchievementsContext achievementsContext, ICommandsLoader commandsLoader)
     {
         _provider = provider;
         _loggerFactory = loggerFactory;
+        _achievementsContext = achievementsContext;
+        _commandsLoader = commandsLoader;
     }
 
     public async Task HandleCommandAsync(Message m, CancellationToken ct)
@@ -36,19 +42,23 @@ public sealed class CommandPatternManager
             return;
         }
 
-        IEnumerable<IChatAction> commands = scopedProvider.GetServices<IChatAction>();
-        IEnumerable<ITriggerable> triggerables = scopedProvider.GetServices<ITriggerable>();
-        foreach (var command in commands)
+        foreach (var commandFactory in _commandsLoader.CommandFactory)
         {
-            if (command.Contains(m))
+            using var command = commandFactory.CreateExport(_provider);
+            if (command.Value.Contains(m))
             {
                 try
                 {
-                    await command.ExecuteAsync(m, ct, triggerables);
+                    await command.Value.ExecuteAsync(m, ct);
+                    var triggerable = _achievementsContext.GetTriggerable(5);
+                    if (triggerable == null)
+                        throw new AchievementNotFoundException(5);
+                    
+                    await triggerable.AcquireAsync(m, ct);
                 }
                 catch (Exception e)
                 {
-                    var logger = _loggerFactory.CreateLogger(command.GetType());
+                    var logger = _loggerFactory.CreateLogger(commandFactory.GetType());
                     logger.LogError(e, "Exception occurred while running the command");
                 }
                 break;

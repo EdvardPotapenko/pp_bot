@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\pp_bot.Abstractions\pp_bot.Abstractions.csproj" />
+      <ProjectReference Include="..\pp_bot.Runtime.Abstractions\pp_bot.Runtime.Abstractions.csproj" />
     </ItemGroup>
 
     <ItemGroup>
