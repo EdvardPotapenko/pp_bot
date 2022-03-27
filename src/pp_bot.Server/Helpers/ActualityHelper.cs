@@ -1,10 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using pp_bot.Server.Models;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
+using pp_bot.Data;
+using pp_bot.Data.Models;
 using Telegram.Bot.Types;
-using Chat = pp_bot.Server.Models.Chat;
+using Chat = pp_bot.Data.Models.Chat;
 
 namespace pp_bot.Server.Helpers;
 
@@ -53,7 +51,7 @@ internal class ActualityHelper
         var chatExists = await context.Chats.AnyAsync(c => c.ChatId == m.Chat.Id, ct);
         if (!chatExists)
         {
-            var chat = new Models.Chat
+            var chat = new Data.Models.Chat
             {
                 ChatId = m.Chat.Id
             };

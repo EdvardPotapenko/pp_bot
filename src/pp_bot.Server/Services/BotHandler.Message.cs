@@ -1,9 +1,7 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using pp_bot.Server.Models;
+using pp_bot.Data;
+using pp_bot.Data.Models;
 using Telegram.Bot.Types;
 
 namespace pp_bot.Server.Services;

@@ -3,11 +3,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using pp_bot.Server.Achievements;
-using pp_bot.Server.Helpers;
-using pp_bot.Server.Models;
+using pp_bot.Abstractions;
+using pp_bot.Data;
+using pp_bot.Data.Helpers;
 using pp_bot.Server.Services;
-using pp_bot.Server.Сommands;
 using Serilog;
 using Telegram.Bot;
 using Telegram.Bot.Extensions.Polling;
@@ -51,7 +50,8 @@ try
             services.AddSingleton<IUpdateHandler, BotHandler>();
             services.AddHostedService<BotHandlerService>();
             services.AddDbContext<PP_Context>(options => options
-                .UseNpgsql(config.GetConnectionString("DB_CONN_STR")));
+                .UseNpgsql(config.GetConnectionString("DB_CONN_STR"),
+                    npgsql => npgsql.MigrationsAssembly("pp_bot.Data")));
 
             var baseType = typeof(IChatAction);
             foreach (var commandType in baseType.Assembly.GetTypes().Where(t => baseType.IsAssignableFrom(t) && t.IsClass && t.IsPublic && !t.IsAbstract))
