@@ -20,7 +20,7 @@ services:
     image: ppbot/host:latest
     build:
       context: .
-      dockerfile: src/pp_bot.Server/Dockerfile
+      dockerfile: docker/Dockerfile
     volumes:
       - ~/.vsdbg:/remote_debugger:rw
     networks:
