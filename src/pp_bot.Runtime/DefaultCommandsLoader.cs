@@ -46,7 +46,7 @@ internal sealed class DefaultCommandsLoader : ICommandsLoader
 				.FirstOrDefault(f => f.Name.Contains(commandDir.Name, StringComparison.OrdinalIgnoreCase)
 									 && f.Extension == ".dll");
 			if (pluginFile == null)
-				throw new FileNotFoundException("Achievement file was not found");
+				throw new FileNotFoundException("Command file was not found");
 				
 			Assembly achievementAssembly = loadContext.LoadFromAssemblyPath(pluginFile.FullName);
 			assemblies.Add(achievementAssembly);
