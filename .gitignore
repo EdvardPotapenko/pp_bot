@@ -17,3 +17,5 @@ obj/
 .vs/
 botsettings.*.json
 docker-compose.override.yml
+
+.nuke/temp
