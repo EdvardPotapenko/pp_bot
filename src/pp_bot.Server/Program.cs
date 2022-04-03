@@ -25,6 +25,9 @@ builder.Configuration
 	.AddJsonFile($"lokisettings.{env}.json", true, false)
 	.AddEnvironmentVariables();
 
+if (builder.Configuration["BOT_TOKEN"]?.Contains("PLACEHOLDER", StringComparison.OrdinalIgnoreCase) ?? true)
+	throw new InvalidOperationException("Bot token is null");
+
 builder.Logging.ClearProviders();
 builder.Host.UseSerilog((_, cfg) => cfg.ReadFrom.Configuration(builder.Configuration));
 
