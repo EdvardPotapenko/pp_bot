@@ -23,6 +23,9 @@ public static class RuntimeServiceCollectionExtensions
 		services.AddSingleton(achievementsLoader);
 		services.AddSingleton(commandsLoader);
 
+		services.AddSingleton<ICommandsContext, DefaultCommandsContext>();
+		services.AddSingleton<IAchievementsContext, DefaultAchievementsContext>();
+
 		return services;
 	}
 }

@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using pp_bot.Achievements.Exceptions;
 using pp_bot.Data;
 using pp_bot.Runtime;
 using pp_bot.Server.Helpers;
@@ -12,15 +11,12 @@ public sealed class CommandPatternManager
 {
     private readonly IServiceProvider _provider;
     private readonly ILoggerFactory _loggerFactory;
-    private readonly IAchievementsContext _achievementsContext;
     private readonly ICommandsLoader _commandsLoader;
 
-    public CommandPatternManager(IServiceProvider provider, ILoggerFactory loggerFactory,
-        IAchievementsContext achievementsContext, ICommandsLoader commandsLoader)
+    public CommandPatternManager(IServiceProvider provider, ILoggerFactory loggerFactory, ICommandsLoader commandsLoader)
     {
         _provider = provider;
         _loggerFactory = loggerFactory;
-        _achievementsContext = achievementsContext;
         _commandsLoader = commandsLoader;
     }
 
@@ -50,11 +46,6 @@ public sealed class CommandPatternManager
                 try
                 {
                     await command.Value.ExecuteAsync(m, ct);
-                    var triggerable = _achievementsContext.GetTriggerable(5);
-                    if (triggerable == null)
-                        throw new AchievementNotFoundException(5);
-                    
-                    await triggerable.AcquireAsync(m, ct);
                 }
                 catch (Exception e)
                 {

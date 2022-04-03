@@ -34,6 +34,12 @@ internal sealed class DefaultAchievementsLoader : IAchievementsLoader, IDisposab
 		string assemblyLocation = Path.GetDirectoryName(currentAssembly.Location)!;
 		string achievementsLocation = Path.Combine(assemblyLocation, "Achievements");
 
+		if (!Directory.Exists(achievementsLocation))
+		{
+			_logger.LogWarning("Directory {DirLocation} doesn't exist", achievementsLocation);
+			return;
+		}
+		
 		var achievementsDir = new DirectoryInfo(achievementsLocation);
 		var assemblies = new List<Assembly>();
 		
@@ -68,7 +74,10 @@ internal sealed class DefaultAchievementsLoader : IAchievementsLoader, IDisposab
 	public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
 	{
 		if (ServicesMetadata == null)
-			throw new ArgumentException(nameof(ServicesMetadata) + " is null");
+		{
+			_logger.LogWarning("Services metadata collection is null");
+			return;
+		}
 		
 		foreach (var serviceConfigurationFactory in ServicesMetadata)
 		{

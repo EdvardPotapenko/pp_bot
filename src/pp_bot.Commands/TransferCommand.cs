@@ -1,6 +1,8 @@
 ﻿using System.Composition;
 using Microsoft.EntityFrameworkCore;
+using pp_bot.Achievements.Exceptions;
 using pp_bot.Data;
+using pp_bot.Runtime;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -12,11 +14,13 @@ public sealed class TransferCommand : IChatAction
 {
     private readonly ITelegramBotClient _client;
     private readonly PP_Context _context;
+    private readonly IAchievementsContext _achievementsContext;
 
-    public TransferCommand(ITelegramBotClient client, PP_Context context)
+    public TransferCommand(ITelegramBotClient client, PP_Context context, IAchievementsContext achievementsContext)
     {
         _client = client;
         _context = context;
+        _achievementsContext = achievementsContext;
     }
 
     public async Task ExecuteAsync(Message message, CancellationToken ct)
@@ -119,7 +123,11 @@ public sealed class TransferCommand : IChatAction
         await _context.SaveChangesAsync(ct);
 
         // TODO trigger SharingIsCaring
-        //await triggerables.First(t => t.Id == 5).AcquireAsync(message, ct);
+        var triggerable = _achievementsContext.GetTriggerable(5);
+        if (triggerable == null)
+            throw new AchievementNotFoundException(5);
+                    
+        await triggerable.AcquireAsync(message, ct);
 
         string sourceUserText = $"<a href=\"tg://user?id={message.From.Id}\">{binding.User.Username}</a>";
         string targetUserText = $"<a href=\"tg://user?id={targetUserId}\">{targetUserBinding.User.Username}</a>";

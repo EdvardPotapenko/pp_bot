@@ -2,7 +2,7 @@ namespace pp_bot.Data.Models;
 
 public sealed class BotUser
 {
-    public int Id { get; set; }
+    public long Id { get; set; }
     public string Username { get; set; }
 
     public string DisplayName { get; set; }

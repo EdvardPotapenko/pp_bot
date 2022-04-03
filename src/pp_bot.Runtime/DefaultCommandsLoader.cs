@@ -31,6 +31,12 @@ internal sealed class DefaultCommandsLoader : ICommandsLoader
 		var currentAssembly = Assembly.GetExecutingAssembly();
 		string assemblyLocation = Path.GetDirectoryName(currentAssembly.Location)!;
 		string commandsLocation = Path.Combine(assemblyLocation, "Commands");
+		
+		if (!Directory.Exists(commandsLocation))
+		{
+			_logger.LogWarning("Directory {DirLocation} doesn't exist", commandsLocation);
+			return;
+		}
 
 		var commandsDir = new DirectoryInfo(commandsLocation);
 		var assemblies = new List<Assembly>();
@@ -65,7 +71,10 @@ internal sealed class DefaultCommandsLoader : ICommandsLoader
 	public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
 	{
 		if (ServicesMetadata == null)
-			throw new ArgumentException(nameof(ServicesMetadata) + " is null");
+		{
+			_logger.LogWarning("Services metadata collection is null");
+			return;
+		}
 		
 		foreach (var serviceConfigurationFactory in ServicesMetadata)
 		{

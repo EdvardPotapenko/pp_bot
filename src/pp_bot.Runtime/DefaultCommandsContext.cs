@@ -3,7 +3,7 @@ using Telegram.Bot.Types;
 
 namespace pp_bot.Runtime;
 
-public sealed class DefaultCommandsContext : ICommandsContext
+internal sealed class DefaultCommandsContext : ICommandsContext
 {
 	private readonly ICommandsLoader _commandsLoader;
 	private readonly IServiceProvider _serviceProvider;

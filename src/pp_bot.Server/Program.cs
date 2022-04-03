@@ -1,7 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using pp_bot.Data;
 using pp_bot.Data.Helpers;
@@ -10,66 +10,57 @@ using pp_bot.Server.Services;
 using Serilog;
 using Telegram.Bot;
 using Telegram.Bot.Extensions.Polling;
-// ReSharper disable MethodHasAsyncOverload
 
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
-Log.Logger = new LoggerConfiguration()
-    .WriteTo.File("critical_logs.txt")
-    .WriteTo.Console()
-    .CreateBootstrapLogger();
+var builder = WebApplication.CreateBuilder();
 
-try
+string env = builder.Environment.EnvironmentName;
+builder.Configuration
+	.AddJsonFile("botsettings.json", false, false)
+	.AddJsonFile($"botsettings.{env}.json", true, false)
+	.AddJsonFile("dbsettings.json", false, false)
+	.AddJsonFile($"dbsettings.{env}.json", true, false)
+	.AddJsonFile("lokisettings.json", false, false)
+	.AddJsonFile($"lokisettings.{env}.json", true, false)
+	.AddEnvironmentVariables();
+
+builder.Logging.ClearProviders();
+builder.Host.UseSerilog((_, cfg) => cfg.ReadFrom.Configuration(builder.Configuration));
+
+#pragma warning disable ASP0000
+var loggingServices = builder.Logging.Services.BuildServiceProvider();
+#pragma warning restore ASP0000
+builder.Services.AddRuntimeServices(loggingServices, builder.Configuration);
+
+builder.Services.AddSingleton<CommandPatternManager>();
+builder.Services.AddSingleton<IAchievementManager, AchievementManager>();
+builder.Services.AddSingleton<ITelegramBotClient>(
+	new TelegramBotClient(builder.Configuration["BOT_TOKEN"]));
+builder.Services.AddSingleton<IUpdateHandler, BotHandler>();
+builder.Services.AddHostedService<BotHandlerService>();
+
+builder.Services.AddDbContext<PP_Context>(options => options
+#if DEBUG
+	.UseInMemoryDatabase("pp-bot-db"));
+#else
+	.UseNpgsql(builder.Configuration.GetConnectionString("DB_CONN_STR"),
+		npgsql => npgsql.MigrationsAssembly("pp_bot.Data")));
+#endif
+
+var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
 {
-    var host = new HostBuilder()
-        .ConfigureLogging((ctx, cfg) => cfg.ClearProviders())
-        .UseSerilog((ctx, cfg) => cfg.ReadFrom.Configuration(ctx.Configuration))
-        .ConfigureHostConfiguration(builder =>
-        {
-            builder.AddEnvironmentVariables("ASPNETCORE_");
-        })
-        .ConfigureAppConfiguration((context, builder) =>
-        {
-            var env = context.HostingEnvironment.EnvironmentName;
-            builder
-                .AddJsonFile("botsettings.json", false, false)
-                .AddJsonFile($"botsettings.{env}.json", true, false)
-                .AddJsonFile("dbsettings.json", false, false)
-                .AddJsonFile($"dbsettings.{env}.json", true, false)
-                .AddJsonFile("lokisettings.json", false, false)
-                .AddJsonFile($"lokisettings.{env}.json", true, false);
-        })
-        .ConfigureServices((context, services) =>
-        {
-            var config = context.Configuration;
-            services.AddLogging();
-            services.AddSingleton<CommandPatternManager>();
-            services.AddSingleton<IAchievementManager, AchievementManager>();
-            services.AddSingleton<ITelegramBotClient>(
-                new TelegramBotClient(config["BOT_TOKEN"]));
-            services.AddSingleton<IUpdateHandler, BotHandler>();
-            services.AddHostedService<BotHandlerService>();
-            services.AddDbContext<PP_Context>(options => options
-                .UseNpgsql(config.GetConnectionString("DB_CONN_STR"),
-                    npgsql => npgsql.MigrationsAssembly("pp_bot.Data")));
-        })               
-        .Build();
+	var context = scope.ServiceProvider.GetRequiredService<PP_Context>();
 
-    using (var scope = host.Services.CreateScope())
-    {
-        var context = scope.ServiceProvider.GetRequiredService<PP_Context>();
+#if !DEBUG
+	if ((await context.Database.GetPendingMigrationsAsync()).Any())
+		await context.Database.MigrateAsync();
+#endif
 
-        if (context.Database.GetPendingMigrations().Any())
-            context.Database.Migrate();
-
-        var achievements = scope.ServiceProvider.GetRequiredService<IAchievementsLoader>();
-        await DatabaseSeedingHelper.EnsureAchievementsIntegrity(achievements, context);
-    }
-
-    await host.RunAsync();
-
+	var achievements = scope.ServiceProvider.GetRequiredService<IAchievementsLoader>();
+	await DatabaseSeedingHelper.EnsureAchievementsIntegrityAsync(achievements, context);
 }
-catch (Exception ex)
-{
-    Log.Logger.Fatal(ex, "Fatal exception occured");
-}
+
+await app.RunAsync();
