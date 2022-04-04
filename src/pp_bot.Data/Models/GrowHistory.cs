@@ -10,7 +10,7 @@ public sealed class GrowHistory
 	public long Id { get; set; }
 	[Column("pp_length_change")]
 	public int PPLengthChange { get; set; }
-	[Column("utc_created_at", TypeName = "timestamp without timezone")]
+	[Column("utc_created_at", TypeName = "timestamp without time zone")]
 	public DateTime UtcCreatedAt { get; set; } = DateTime.UtcNow;
 	
 	public Ref__BotUser__Chat User { get; set; }

@@ -85,7 +85,7 @@ namespace pp_bot.Server.Migrations
                         .HasColumnName("pp_length_change");
 
                     b.Property<DateTime>("UtcCreatedAt")
-                        .HasColumnType("timestamp without timezone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("utc_created_at");
 
                     b.HasKey("Id");
@@ -115,7 +115,7 @@ namespace pp_bot.Server.Migrations
                         .HasColumnName("user_id");
 
                     b.Property<DateTime>("UtcUpdatedAt")
-                        .HasColumnType("timestamp without timezone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("utc_updated_at");
 
                     b.HasKey("Id");

@@ -81,7 +81,7 @@ namespace pp_bot.Server.Migrations
                     user_id = table.Column<long>(type: "bigint", nullable: false),
                     chat_id = table.Column<long>(type: "bigint", nullable: false),
                     pp_length = table.Column<int>(type: "integer", nullable: false),
-                    utc_updated_at = table.Column<DateTime>(type: "timestamp without timezone", nullable: false)
+                    utc_updated_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -134,7 +134,7 @@ namespace pp_bot.Server.Migrations
                 {
                     id = table.Column<long>(type: "bigint", nullable: false),
                     pp_length_change = table.Column<int>(type: "integer", nullable: false),
-                    utc_created_at = table.Column<DateTime>(type: "timestamp without timezone", nullable: false)
+                    utc_created_at = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
                 },
                 constraints: table =>
                 {

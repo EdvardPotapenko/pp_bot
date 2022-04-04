@@ -20,7 +20,7 @@ public sealed class Ref__BotUser__Chat
     
     [Column("pp_length")]
     public int PPLength { get; set; }
-    [Column("utc_updated_at", TypeName = "timestamp without timezone")]
+    [Column("utc_updated_at", TypeName = "timestamp without time zone")]
     public DateTime UtcUpdatedAt { get; set; }
     
     public List<GrowHistory> GrowHistory { get; set; }

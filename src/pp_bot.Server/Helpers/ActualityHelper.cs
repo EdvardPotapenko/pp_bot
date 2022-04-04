@@ -10,7 +10,7 @@ internal class ActualityHelper
 {
     public static async Task EnsureUserIsActualAsync(Message m, PPContext context, CancellationToken ct)
     {
-        string displayName = $"{m.From.FirstName} {m.From.LastName}".Trim();
+        string displayName = $"{m.From!.FirstName} {m.From.LastName}".Trim();
         string username = m.From.Username ?? m.From.FirstName;
         var user = await context.BotUsers
             .FirstOrDefaultAsync(u => u.TelegramId == m.From.Id, ct);
