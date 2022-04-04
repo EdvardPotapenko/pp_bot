@@ -25,9 +25,9 @@ partial class BotHandler
             long userId = m.LeftChatMember.Id;
 
             using var scope = _serviceProvider.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<PP_Context>();
+            var context = scope.ServiceProvider.GetRequiredService<PPContext>();
 
-            context.BotUserChat.Remove(new BotUserChat {ChatUsersId = userId, UserChatsChatId = chatId});
+            context.BotUser__Chat.Remove(new Ref__BotUser__Chat {UserId = userId, ChatId = chatId});
             await context.SaveChangesAsync(ct);
         }
         catch (Exception e)

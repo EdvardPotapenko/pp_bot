@@ -8,7 +8,7 @@ namespace pp_bot.Server.Helpers;
 
 internal class ActualityHelper
 {
-    public static async Task EnsureUserIsActualAsync(Message m, PP_Context context, CancellationToken ct)
+    public static async Task EnsureUserIsActualAsync(Message m, PPContext context, CancellationToken ct)
     {
         string displayName = $"{m.From.FirstName} {m.From.LastName}".Trim();
         string username = m.From.Username ?? m.From.FirstName;
@@ -46,7 +46,7 @@ internal class ActualityHelper
 
     }
 
-    public static async Task EnsureChatIsCreatedAsync(Message m, PP_Context context, CancellationToken ct)
+    public static async Task EnsureChatIsCreatedAsync(Message m, PPContext context, CancellationToken ct)
     {
         var chatExists = await context.Chats.AnyAsync(c => c.ChatId == m.Chat.Id, ct);
         if (!chatExists)
@@ -61,16 +61,16 @@ internal class ActualityHelper
         }
     }
 
-    public static async Task BindUserAndChatAsync(PP_Context context, Chat chat, BotUser user, CancellationToken ct)
+    public static async Task BindUserAndChatAsync(PPContext context, Chat chat, BotUser user, CancellationToken ct)
     {
-        var botUserChat = new BotUserChat
+        var botUserChat = new Ref__BotUser__Chat
         {
-            ChatUsersId = user.Id,
-            UserChatsChatId = chat.ChatId,
-            LastManipulationTime = DateTime.Now
+            UserId = user.TelegramId,
+            ChatId = chat.ChatId,
+            UtcUpdatedAt = DateTime.Now
         };
         // ReSharper disable once MethodHasAsyncOverload
-        context.BotUserChat.Add(botUserChat);
+        context.BotUser__Chat.Add(botUserChat);
         await context.SaveChangesAsync(ct);
     }
 }

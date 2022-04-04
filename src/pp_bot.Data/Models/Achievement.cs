@@ -1,7 +1,12 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace pp_bot.Data.Models;
 
-public class Achievement
+[Table("achievements")]
+public sealed class Achievement
 {
-    public int Id { get; init; }
-    public List<BotUserChat> UsersAcquired { get; init; }
+    [Column("id")]
+    public int Id { get; set; }
+    
+    public List<Ref__BotUserToChat__Achievement> UsersAcquired { get; set; }
 }

@@ -7,7 +7,7 @@ namespace pp_bot.Data.Helpers;
 
 public static class DatabaseSeedingHelper
 {
-    public static async Task EnsureAchievementsIntegrityAsync(IAchievementsLoader achievementsLoader, PP_Context context)
+    public static async Task EnsureAchievementsIntegrityAsync(IAchievementsLoader achievementsLoader, PPContext context)
     {
         foreach (var achievementFactory in achievementsLoader.AchievableFactory)
         {

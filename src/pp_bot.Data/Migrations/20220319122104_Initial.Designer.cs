@@ -9,7 +9,7 @@ using pp_bot.Data;
 
 namespace pp_bot.Server.Migrations
 {
-    [DbContext(typeof(PP_Context))]
+    [DbContext(typeof(PPContext))]
     [Migration("20220319122104_Initial")]
     partial class Initial
     {

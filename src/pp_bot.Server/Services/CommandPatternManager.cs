@@ -27,7 +27,7 @@ public sealed class CommandPatternManager
 
         try
         {
-            var context = scopedProvider.GetRequiredService<PP_Context>();
+            var context = scopedProvider.GetRequiredService<PPContext>();
             await ActualityHelper.EnsureChatIsCreatedAsync(m, context, ct);
             await ActualityHelper.EnsureUserIsActualAsync(m, context, ct);
         }

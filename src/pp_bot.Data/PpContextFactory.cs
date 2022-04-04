@@ -3,16 +3,16 @@ using Microsoft.EntityFrameworkCore.Design;
 
 namespace pp_bot.Data;
 
-public sealed class PpContextFactory : IDesignTimeDbContextFactory<PP_Context>
+public sealed class PpContextFactory : IDesignTimeDbContextFactory<PPContext>
 {
-    public PP_Context CreateDbContext(string[] args)
+    public PPContext CreateDbContext(string[] args)
     {
-        var builder = new DbContextOptionsBuilder<PP_Context>()
+        var builder = new DbContextOptionsBuilder<PPContext>()
 #if DEBUG
             .UseInMemoryDatabase("pp-bot-db");
 #else
             .UseNpgsql("Host=localhost;Port=5432;");
 #endif
-        return new PP_Context(builder.Options);
+        return new PPContext(builder.Options);
     }
 }

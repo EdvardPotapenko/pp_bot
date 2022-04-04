@@ -13,10 +13,10 @@ namespace pp_bot.Commands;
 public sealed class TransferCommand : IChatAction
 {
     private readonly ITelegramBotClient _client;
-    private readonly PP_Context _context;
+    private readonly PPContext _context;
     private readonly IAchievementsContext _achievementsContext;
 
-    public TransferCommand(ITelegramBotClient client, PP_Context context, IAchievementsContext achievementsContext)
+    public TransferCommand(ITelegramBotClient client, PPContext context, IAchievementsContext achievementsContext)
     {
         _client = client;
         _context = context;
@@ -27,7 +27,7 @@ public sealed class TransferCommand : IChatAction
     {
         Task SendErrorAsync()
         {
-            return _client.SendTextMessageAsync(message.Chat,
+            return _client.SendTextMessageAsync(message.Chat.Id,
                 "Неверный формат команды, ожидается:\n`/transfer n @username`\nгде:\n" +
                 "*n* \\- число сантиметров, которые необходимо передать \\(например, 20\\)\n" +
                 "*@username* \\- юзернейм пользователя, которому передать сантиметры\\.\n\n" +
@@ -38,7 +38,7 @@ public sealed class TransferCommand : IChatAction
                 cancellationToken: ct);
         }
 
-        string[] separatedText = message.Text.Split(' ', 4);
+        string[] separatedText = message.Text?.Split(' ', 4) ?? Array.Empty<string>();
         if (separatedText.Length < 2)
         {
             await SendErrorAsync();
@@ -53,12 +53,12 @@ public sealed class TransferCommand : IChatAction
 
         if (valueToTransfer < 1)
         {
-            await _client.SendTextMessageAsync(message.Chat, "Минимально можно передать 1 см.",
+            await _client.SendTextMessageAsync(message.Chat.Id, "Минимально можно передать 1 см.",
                 replyToMessageId: message.MessageId, cancellationToken: ct);
             return;
         }
 
-        MessageEntity userMention = message.Entities?.FirstOrDefault(e =>
+        MessageEntity? userMention = message.Entities?.FirstOrDefault(e =>
             e.Type == MessageEntityType.TextMention);
         long targetUserId;
         if (userMention is { User: { } })
@@ -74,12 +74,12 @@ public sealed class TransferCommand : IChatAction
                 .FirstOrDefaultAsync(ct);
             if (userByUsername == null)
             {
-                await _client.SendTextMessageAsync(message.Chat, "Получатель не зарегистрирован в боте!",
+                await _client.SendTextMessageAsync(message.Chat.Id, "Получатель не зарегистрирован в боте!",
                     replyToMessageId: message.MessageId, cancellationToken: ct);
                 return;
             }
 
-            targetUserId = (int)userByUsername.TelegramId;
+            targetUserId = userByUsername.TelegramId;
         }
         else if (message.ReplyToMessage is { From: { } })
         {
@@ -91,29 +91,29 @@ public sealed class TransferCommand : IChatAction
             return;
         }
 
-        var binding = await _context.BotUserChat
+        var binding = await _context.BotUser__Chat
             .Include(b => b.User)
-            .FirstOrDefaultAsync(b => b.User.TelegramId == message.From.Id, ct);
+            .FirstOrDefaultAsync(b => b.User.TelegramId == message.From!.Id, ct);
         if (binding == null)
         {
-            await _client.SendTextMessageAsync(message.Chat, "Вы не зарегистрированы в боте!",
+            await _client.SendTextMessageAsync(message.Chat.Id, "Вы не зарегистрированы в боте!",
                 replyToMessageId: message.MessageId, cancellationToken: ct);
             return;
         }
 
         if (binding.PPLength < valueToTransfer)
         {
-            await _client.SendTextMessageAsync(message.Chat, "Недостаточно длины на счету!",
+            await _client.SendTextMessageAsync(message.Chat.Id, "Недостаточно длины на счету!",
                 replyToMessageId: message.MessageId, cancellationToken: ct);
             return;
         }
 
-        var targetUserBinding = await _context.BotUserChat
+        var targetUserBinding = await _context.BotUser__Chat
             .Include(b => b.User)
             .FirstOrDefaultAsync(b => b.User.TelegramId == targetUserId, ct);
         if (targetUserBinding == null)
         {
-            await _client.SendTextMessageAsync(message.Chat, "Получатель не зарегистрирован в боте!",
+            await _client.SendTextMessageAsync(message.Chat.Id, "Получатель не зарегистрирован в боте!",
                 replyToMessageId: message.MessageId, cancellationToken: ct);
             return;
         }
@@ -122,16 +122,15 @@ public sealed class TransferCommand : IChatAction
         binding.PPLength -= valueToTransfer;
         await _context.SaveChangesAsync(ct);
 
-        // TODO trigger SharingIsCaring
         var triggerable = _achievementsContext.GetTriggerable(5);
         if (triggerable == null)
             throw new AchievementNotFoundException(5);
                     
         await triggerable.AcquireAsync(message, ct);
 
-        string sourceUserText = $"<a href=\"tg://user?id={message.From.Id}\">{binding.User.Username}</a>";
+        string sourceUserText = $"<a href=\"tg://user?id={message.From!.Id}\">{binding.User.Username}</a>";
         string targetUserText = $"<a href=\"tg://user?id={targetUserId}\">{targetUserBinding.User.Username}</a>";
-        await _client.SendTextMessageAsync(message.Chat,
+        await _client.SendTextMessageAsync(message.Chat.Id,
             $"Не сказать, что {sourceUserText} отличается умом и " +
             $"сообразительностью, но он подарил {valueToTransfer} см {targetUserText}",
             ParseMode.Html,

@@ -8,22 +8,20 @@ namespace pp_bot.Commands;
 [Export(typeof(IChatAction))]
 public sealed class LeaveGameCommand : IChatAction
 {
-    private readonly PP_Context _context;
     private readonly ITelegramBotClient _client;
     private readonly PPBotRepo _repo;
 
     private const string CommandName = "/leave";
 
-    public LeaveGameCommand(ITelegramBotClient client, PP_Context context)
+    public LeaveGameCommand(ITelegramBotClient client, PPBotRepo repo)
     {
         _client = client;
-        _context = context;
-        _repo = new PPBotRepo(context);
+        _repo = repo;
     }
 
     public bool Contains(Message message)
     {
-        return message.Text.StartsWith(CommandName);
+        return message.Text?.StartsWith(CommandName) ?? false;
     }
 
     public async Task ExecuteAsync(Message message, CancellationToken ct)
@@ -34,13 +32,13 @@ public sealed class LeaveGameCommand : IChatAction
 
             await _client.SendTextMessageAsync(
                 message.Chat.Id,
-                $"Вжух! {message.From.FirstName} больше нет - как и не бывало!", cancellationToken: ct);
+                $"Вжух! {message.From!.FirstName} больше нет - как и не бывало!", cancellationToken: ct);
         }
-        catch(ArgumentException)
+        catch (ArgumentException) // TODO maybe not ArgumentException?
         {
             await _client.SendTextMessageAsync(
                 message.Chat.Id,
-                $"Упс, не удалось удалить пользователя {message.From.FirstName}", cancellationToken: ct);
+                $"Упс, не удалось удалить пользователя {message.From!.FirstName}", cancellationToken: ct);
         }
     }
 }

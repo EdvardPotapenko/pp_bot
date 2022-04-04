@@ -43,19 +43,20 @@ builder.Services.AddSingleton<ITelegramBotClient>(
 builder.Services.AddSingleton<IUpdateHandler, BotHandler>();
 builder.Services.AddHostedService<BotHandlerService>();
 
-builder.Services.AddDbContext<PP_Context>(options => options
+builder.Services.AddDbContext<PPContext>(options => options
 #if DEBUG
 	.UseInMemoryDatabase("pp-bot-db"));
 #else
 	.UseNpgsql(builder.Configuration.GetConnectionString("DB_CONN_STR"),
 		npgsql => npgsql.MigrationsAssembly("pp_bot.Data")));
 #endif
+builder.Services.AddScoped<PPBotRepo>();
 
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-	var context = scope.ServiceProvider.GetRequiredService<PP_Context>();
+	var context = scope.ServiceProvider.GetRequiredService<PPContext>();
 
 #if !DEBUG
 	if ((await context.Database.GetPendingMigrationsAsync()).Any())

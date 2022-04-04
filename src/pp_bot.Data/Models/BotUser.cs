@@ -1,12 +1,17 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace pp_bot.Data.Models;
 
+[Table("bot_users")]
 public sealed class BotUser
 {
-    public long Id { get; set; }
+    [Key, Column("telegram_id")]
+    public long TelegramId { get; set; }
+    [Column("username")]
     public string? Username { get; set; }
-
+    [Required, Column("display_name")]
     public string DisplayName { get; set; }
-    public long TelegramId { get; init; }
 
-    public List<BotUserChat> UserChats { get; set; }
+    public List<Ref__BotUser__Chat> UserChats { get; set; }
 }

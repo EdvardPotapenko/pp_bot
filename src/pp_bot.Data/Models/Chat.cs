@@ -1,10 +1,13 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace pp_bot.Data.Models;
 
-public sealed record Chat
+[Table("chats")]
+public sealed class Chat
 {
-    [Key]
-    public long ChatId { get; init; }
-    public List<BotUserChat> ChatUsers { get; init; }
+    [Key, Column("chat_id")]
+    public long ChatId { get; set; }
+    
+    public List<Ref__BotUser__Chat> ChatUsers { get; set; }
 }

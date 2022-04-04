@@ -8,47 +8,37 @@ namespace pp_bot.Data;
 
 public sealed class PPBotRepo
 {
-    private readonly PP_Context _context;
+    private readonly PPContext _context;
 
-    public PPBotRepo(PP_Context context)
+    public PPBotRepo(PPContext context)
     {
         _context = context;
     }
 
     public async Task DeleteUserAsync(Message message, CancellationToken ct)
     {
-        _context.BotUserChat.Remove(
-            new BotUserChat { ChatUsersId = message.From.Id, UserChatsChatId = message.Chat.Id });
+        _context.BotUser__Chat.Remove(
+            new Ref__BotUser__Chat { UserId = message.From!.Id, ChatId = message.Chat.Id });
         await _context.SaveChangesAsync(ct);
     }
 
-    public async Task<BotUser> GetUserAsync(Message message, CancellationToken ct)
-    {
-        return await _context.BotUsers
-            .Include(u => u.UserChats)
-            .ThenInclude(it => it.Chat)
-            .FirstOrDefaultAsync(user => user.TelegramId == message.From.Id, ct);
-    }
-
-    public async Task<Chat> GetChatAsync(Message message, CancellationToken ct)
+    public async Task<Chat?> GetChatAsync(Message message, CancellationToken ct)
     {
         return await _context.Chats
+            .AsNoTracking()
             .Include(c => c.ChatUsers)
             .ThenInclude(it => it.User)
-            .FirstOrDefaultAsync(chat => chat.ChatId == message.Chat.Id,ct);
+            .FirstOrDefaultAsync(chat => chat.ChatId == message.Chat.Id, ct);
     }
 
-    public async Task<BotUserChat> GetUserChatAsync(Message message, CancellationToken ct)
+    public async Task<Ref__BotUser__Chat?> GetChatUserAsync(Message message, CancellationToken ct)
     {
-        return await _context.BotUserChat
+        return await _context.BotUser__Chat
+            .AsNoTracking()
             .Include(uc => uc.User)
             .Include(uc => uc.AcquiredAchievements)
-            .Include(uc => uc.UserChatGrowHistory)
-            .FirstOrDefaultAsync
-            (
-                uc => uc.Chat.ChatId == message.Chat.Id &&
-                      uc.User.TelegramId == message.From.Id,
-                ct
-            );
+            .ThenInclude(a => a.Achievement.UsersAcquired)
+            .Include(uc => uc.GrowHistory)
+            .FirstOrDefaultAsync(uc => uc.Chat.ChatId == message.Chat.Id && uc.User.TelegramId == message.From!.Id, ct);
     }
 }

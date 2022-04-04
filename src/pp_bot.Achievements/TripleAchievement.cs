@@ -1,6 +1,8 @@
 using System.Composition;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using pp_bot.Achievements.Exceptions;
+using pp_bot.Achievements.Extensions;
 using pp_bot.Data;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -14,44 +16,45 @@ namespace pp_bot.Achievements;
 [ExportMetadata(AchievementMetadata.DescriptionType, Description)]
 public sealed class TripleAchievement : IAchievable
 {
-    private readonly PP_Context _context;
+    private readonly PPContext _context;
     private readonly PPBotRepo _repo;
+    private readonly ILogger<TripleAchievement> _logger;
     private readonly ITelegramBotClient _client;
 
     private const int Id = 2;
     private const string Name = "ЙЕС, МИНУС ТРИ! ЮХУ!";
     private const string Description = "Получить -3 см. при выполнении комманды /grow";
 
-    public TripleAchievement(ITelegramBotClient client, PP_Context context, PPBotRepo repo)
+    public TripleAchievement(ITelegramBotClient client, PPContext context, PPBotRepo repo,
+        ILogger<TripleAchievement> logger)
     {
         _client = client;
         _context = context;
         _repo = repo;
+        _logger = logger;
     }
 
     public async Task AcquireAsync(Message m, CancellationToken ct)
     {
-        var achievement = await _context.Achievements
-            .FirstOrDefaultAsync(a => a.Id == Id, ct);
+        await _context.EnsureAchievementExistsAsync(Id, ct);
 
-        if (achievement == null)
-            throw new AchievementNotFoundException(Id);
+        var chatUser = await _repo.GetChatUserAsync(m, ct);
+        if (chatUser == null)
+        {
+            _logger.LogChatUserIsNull(m);
+            return;
+        }
 
-        var userChat = await _repo.GetUserChatAsync(m, ct);
-
-        if (userChat.AcquiredAchievements.Contains(achievement))
+        if (chatUser.AcquiredAchievement(Id))
             return;
 
-        if (userChat.UserChatGrowHistory.Any(h => h.PPLengthChange == -3))
+        if (chatUser.GrowHistory.Any(h => h.PPLengthChange == -3))
         {
-            userChat.AcquiredAchievements.Add(achievement);
-            achievement.UsersAcquired.Add(userChat);
-
-            await _context.SaveChangesAsync(ct);
+            await _context.AcquireAchievementAsync(Id, chatUser.Id, ct);
 
             await _client.SendTextMessageAsync(
                 m.Chat.Id,
-                $"<b>{userChat.User.Username}</b> получил достижение <i>{Name}</i>, поздравляем 🎉!",
+                $"<b>{chatUser.User.Username}</b> получил достижение <i>{Name}</i>, поздравляем 🎉!",
                 ParseMode.Html,
                 cancellationToken: ct);
         }

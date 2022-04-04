@@ -6,6 +6,7 @@ x-restart-policy: &restart_policy
 x-host-config: &host_config
   environment:
     - ASPNETCORE_ENVIRONMENT=Development
+    - BOT_TOKEN=1171979609:AAF6im_6apYfW7sY6JlFqu8ZNRkLc7ts1mM
 
 networks:
   ppbot:
@@ -21,8 +22,6 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    volumes:
-      - ~/.vsdbg:/remote_debugger:rw
     networks:
       - ppbot
   
