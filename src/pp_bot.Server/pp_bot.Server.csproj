@@ -8,6 +8,16 @@
     <LangVersion>10.0</LangVersion>
     <ImplicitUsings>true</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Configurations>Debug;Release;Webhook</Configurations>
+    <Platforms>AnyCPU;x86;x64</Platforms>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Webhook'">
+    <DefineConstants>$(DefineConstants);WEBHOOK</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' != 'Webhook'">
+    <DefineConstants>$(DefineConstants);POLLING</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,8 +26,12 @@
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.15.0" />
     <PackageReference Include="Sentry.Extensions.Logging" Version="3.15.0" />
     <PackageReference Include="Serilog.AspNetCore" Version="5.0.0" />
-    <PackageReference Include="Serilog.Sinks.Grafana.Loki" Version="7.1.0" />
+    <PackageReference Include="Serilog.Sinks.Grafana.Loki" Version="7.1.1" />
     <PackageReference Include="Telegram.Bot.Extensions.Polling" Version="1.0.2" />
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(Configuration)' == 'Webhook'">
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.3" />
   </ItemGroup>
 
   <ItemGroup>

@@ -5,6 +5,8 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <NoWarn>CS8618</NoWarn>
+        <Configurations>Debug;Release;Webhook</Configurations>
+        <Platforms>AnyCPU;x86;x64</Platforms>
     </PropertyGroup>
 
     <ItemGroup>
@@ -25,7 +27,7 @@
         <Compile Remove="Migrations/**" />
     </ItemGroup>
 
-    <ItemGroup Condition="'$(Configuration)' == 'Release'">
+    <ItemGroup Condition="'$(Configuration)' != 'Debug'">
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.3" />
     </ItemGroup>
 

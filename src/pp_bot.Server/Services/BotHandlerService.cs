@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿#if POLLING
+using Microsoft.Extensions.Hosting;
 using Telegram.Bot;
 using Telegram.Bot.Extensions.Polling;
 using Telegram.Bot.Types.Enums;
@@ -26,3 +27,4 @@ public sealed class BotHandlerService : BackgroundService
             stoppingToken);
     }
 }
+#endif

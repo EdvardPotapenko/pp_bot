@@ -6,7 +6,7 @@ x-restart-policy: &restart_policy
 x-host-config: &host_config
   environment:
     - ASPNETCORE_ENVIRONMENT=Development
-    - BOT_TOKEN=1171979609:AAF6im_6apYfW7sY6JlFqu8ZNRkLc7ts1mM
+    - ASPNETCORE_URLS=http://+:80
 
 networks:
   ppbot:
@@ -19,6 +19,8 @@ services:
       - postgres
     container_name: pp_bot_app
     image: ppbot/host:latest
+    ports:
+      - "25001:80"
     build:
       context: .
       dockerfile: docker/Dockerfile

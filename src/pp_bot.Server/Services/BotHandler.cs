@@ -36,9 +36,9 @@ public sealed partial class BotHandler : IUpdateHandler
         });
     }
 
-    public Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
+    public async Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
     {
         _logger.LogError(exception, "Error occurred while handling the incoming Telegram update");
-        return Task.CompletedTask;
+        await Task.Delay(3_000, cancellationToken);
     }
 }

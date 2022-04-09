@@ -41,7 +41,11 @@ builder.Services.AddSingleton<IAchievementManager, AchievementManager>();
 builder.Services.AddSingleton<ITelegramBotClient>(
 	new TelegramBotClient(builder.Configuration["BOT_TOKEN"]));
 builder.Services.AddSingleton<IUpdateHandler, BotHandler>();
+#if POLLING
 builder.Services.AddHostedService<BotHandlerService>();
+#elif WEBHOOK
+builder.Services.AddHostedService<BotWebhookService>();
+#endif
 
 builder.Services.AddDbContext<PPContext>(options => options
 #if DEBUG
@@ -51,6 +55,13 @@ builder.Services.AddDbContext<PPContext>(options => options
 		npgsql => npgsql.MigrationsAssembly("pp_bot.Data")));
 #endif
 builder.Services.AddScoped<PPBotRepo>();
+
+#if WEBHOOK
+builder.Services.AddControllers()
+	.AddNewtonsoftJson();
+#else
+builder.Services.AddControllers();
+#endif
 
 var app = builder.Build();
 
@@ -66,5 +77,12 @@ using (var scope = app.Services.CreateScope())
 	var achievements = scope.ServiceProvider.GetRequiredService<IAchievementsLoader>();
 	await DatabaseSeedingHelper.EnsureAchievementsIntegrityAsync(achievements, context);
 }
+
+app.UseRouting();
+
+app.UseEndpoints(endpoints =>
+{
+	endpoints.MapControllers();
+});
 
 await app.RunAsync();

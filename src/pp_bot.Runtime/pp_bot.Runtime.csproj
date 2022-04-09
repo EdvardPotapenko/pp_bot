@@ -6,6 +6,8 @@
         <Nullable>enable</Nullable>
         <LangVersion>10.0</LangVersion>
         <NoWarn>CS8618</NoWarn>
+        <Configurations>Debug;Release;Webhook</Configurations>
+        <Platforms>AnyCPU;x86;x64</Platforms>
     </PropertyGroup>
 
     <ItemGroup>
