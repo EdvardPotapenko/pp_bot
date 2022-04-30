@@ -1,109 +1,123 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using pp_bot.Server.Achievements;
-using pp_bot.Server.Helpers;
-using pp_bot.Server.Models;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using pp_bot.Data;
+using pp_bot.Data.Helpers;
+using pp_bot.Runtime;
+using pp_bot.Server.Options;
 using pp_bot.Server.Services;
-using pp_bot.Server.Сommands;
 using Serilog;
 using Telegram.Bot;
+using Telegram.Bot.Exceptions;
 using Telegram.Bot.Extensions.Polling;
-// ReSharper disable MethodHasAsyncOverload
+using Telegram.Bot.Types;
 
-namespace pp_bot.Server
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
+var builder = WebApplication.CreateBuilder();
+
+string env = builder.Environment.EnvironmentName;
+builder.Configuration
+	.AddJsonFile("botsettings.json", false, false)
+	.AddJsonFile($"botsettings.{env}.json", true, false)
+	.AddJsonFile("dbsettings.json", false, false)
+	.AddJsonFile($"dbsettings.{env}.json", true, false)
+	.AddJsonFile("lokisettings.json", false, false)
+	.AddJsonFile($"lokisettings.{env}.json", true, false)
+	.AddEnvironmentVariables();
+
+builder.Logging.ClearProviders();
+builder.Host.UseSerilog((_, cfg) => cfg.ReadFrom.Configuration(builder.Configuration));
+
+IServiceProvider loggingServices = builder.Logging.Services.BuildServiceProvider();
+builder.Services.AddRuntimeServices(loggingServices, builder.Configuration);
+
+builder.Services.AddOptions<TelegramBotOptions>()
+	.BindConfiguration("TelegramBot")
+	.ValidateDataAnnotations();
+
+builder.Services.AddSingleton<CommandPatternManager>();
+builder.Services.AddSingleton<IAchievementManager, AchievementManager>();
+builder.Services.AddSingleton<ITelegramBotClient>(provider =>
 {
-    internal static class Program
-    {
-        private static async Task Main()
-        {
-            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+	string token = provider.GetRequiredService<IOptions<TelegramBotOptions>>().Value.Token;
+	return new TelegramBotClient(token);
+});
+builder.Services.AddSingleton<IUpdateHandler, BotHandler>();
 
-            Log.Logger = new LoggerConfiguration()
-                         .WriteTo.File($"critical_logs.txt")
-                         .WriteTo.Console()
-                         .CreateBootstrapLogger();
-
-            try
-            {
-                var host = new HostBuilder()
-                    .ConfigureLogging((ctx, cfg) => cfg.ClearProviders())
-                    .UseSerilog((ctx, cfg) => cfg.ReadFrom.Configuration(ctx.Configuration))
-                    .ConfigureHostConfiguration(builder =>
-                    {
-                        builder.AddEnvironmentVariables("ASPNETCORE_");
-                    })
-                    .ConfigureAppConfiguration((context, builder) =>
-                    {
-                        var env = context.HostingEnvironment.EnvironmentName;
-                        builder
-                            .AddJsonFile("botsettings.json", false, false)
-                            .AddJsonFile($"botsettings.{env}.json", true, false)
-                            .AddJsonFile("dbsettings.json", false, false)
-                            .AddJsonFile($"dbsettings.{env}.json", true, false)
-                            .AddJsonFile($"lokisettings.json", true, false)
-                            .AddJsonFile($"lokisettings.{env}.json", true, false);
-                    })
-                    .ConfigureServices((context, services) =>
-                    {
-                        var config = context.Configuration;
-                        services.AddLogging();
-                        services.AddSingleton<CommandPatternManager>();
-                        services.AddSingleton<IAchievementManager, AchievementManager>();
-                        services.AddSingleton<ITelegramBotClient>(
-                            new TelegramBotClient(config["BOT_TOKEN"]));
-                        services.AddSingleton<IUpdateHandler, BotHandler>();
-                        services.AddHostedService<BotHandlerService>();
-                        services.AddDbContext<PP_Context>(options => options
-                            .UseNpgsql(config.GetConnectionString("DB_CONN_STR")));
-
-                        var baseType = typeof(IChatAction);
-                        foreach (var commandType in baseType.Assembly.GetTypes().Where(t => baseType.IsAssignableFrom(t) && t.IsClass && t.IsPublic && !t.IsAbstract))
-                        {
-                            services.AddScoped(baseType, commandType);
-                        }
-
-                        baseType = typeof(IAchievable);
-                        foreach (var achievementType in baseType.Assembly.GetTypes().Where(t => baseType.IsAssignableFrom(t) && t.IsClass && t.IsPublic && !t.IsAbstract))
-                        {
-                            services.AddScoped(baseType, achievementType);
-                        }
-
-                        baseType = typeof(ITriggerable);
-                        foreach (var achievementType in baseType.Assembly.GetTypes().Where(t => baseType.IsAssignableFrom(t) && t.IsClass && t.IsPublic && !t.IsAbstract))
-                        {
-                            services.AddScoped(baseType, achievementType);
-                        }
-                    })               
-                    .Build();
-
-                using (var scope = host.Services.CreateScope())
-                {
-                    var context = scope.ServiceProvider.GetRequiredService<PP_Context>();
-
-                    if (context.Database.GetPendingMigrations().Any())
-                        context.Database.Migrate();
-
-                    var achievements = scope.ServiceProvider.GetServices<IAchievable>();
-                    var triggerables = scope.ServiceProvider.GetServices<ITriggerable>();
-
-
-                    await DatabaseSeedingHelper.EnsureAchievementsIntegrity(achievements, triggerables, context);
-                }
-
-                await host.RunAsync();
-
-            }
-            catch (Exception ex)
-            {
-                Log.Logger.Fatal(ex, "Fatal exception occured");
-                return;
-            }
-        }
-    }
+switch (builder.Configuration["TelegramBot:ListenKind"])
+{
+	case "Polling":
+		builder.Services.AddHostedService<BotHandlerService>();
+		break;
+	
+	case "Webhook":
+		builder.Services.AddHostedService<BotWebhookService>();
+		break;
+	
+	default:
+		throw new Exception("TelegramBot:ListenKind parameter is invalid.");
 }
+
+builder.Services.AddDbContext<PPContext>(options => options
+#if DEBUG
+	.UseInMemoryDatabase("pp-bot-db"));
+#else
+	.UseNpgsql(builder.Configuration.GetConnectionString("DB_CONN_STR"),
+		npgsql => npgsql.MigrationsAssembly("pp_bot.Data")));
+#endif
+builder.Services.AddScoped<PPBotRepo>();
+
+builder.Services.AddControllers();
+
+WebApplication app = builder.Build();
+
+await using (AsyncServiceScope scope = app.Services.CreateAsyncScope())
+{
+	var context = scope.ServiceProvider.GetRequiredService<PPContext>();
+
+#if !DEBUG
+	if ((await context.Database.GetPendingMigrationsAsync()).Any())
+		await context.Database.MigrateAsync();
+#endif
+
+	var achievements = scope.ServiceProvider.GetRequiredService<IAchievementsLoader>();
+	await DatabaseSeedingHelper.EnsureAchievementsIntegrityAsync(achievements, context);
+}
+
+app.UseRouting();
+
+app.MapPost("/webhook/v1", async (IUpdateHandler updateHandler, ITelegramBotClient botClient, HttpContext context,
+	CancellationToken cancellationToken) =>
+{
+	Update? update;
+		
+	using (var streamReader = new StreamReader(context.Request.Body))
+	using (var jsonReader = new JsonTextReader(streamReader))
+	{
+		var serializer = new JsonSerializer();
+		update = serializer.Deserialize<Update>(jsonReader);
+	}
+
+	if (update == null)
+		return Results.BadRequest();
+		
+	try
+	{
+		await updateHandler.HandleUpdateAsync(botClient, update, cancellationToken);
+	}
+	catch (ApiRequestException ex)
+	{
+		await updateHandler.HandleErrorAsync(botClient, ex, cancellationToken);
+		return Results.StatusCode(500);
+	}
+
+	return Results.Ok();
+});
+
+await app.RunAsync();

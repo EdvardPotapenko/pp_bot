@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <LangVersion>10.0</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\pp_bot.Achievements.Abstractions\pp_bot.Achievements.Abstractions.csproj" />
+      <ProjectReference Include="..\pp_bot.Data\pp_bot.Data.csproj" />
+    </ItemGroup>
+
+</Project>

@@ -1,3 +1,6 @@
 ﻿{
-  "BOT_TOKEN": "PLACEHOLDER"
+  "TelegramBot": {
+    "Token": "PLACEHOLDER",
+    "ListenKind": "Polling"
+  }
 }
