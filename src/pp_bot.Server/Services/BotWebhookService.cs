@@ -1,24 +1,29 @@
-#if WEBHOOK
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
+using pp_bot.Server.Options;
 using Telegram.Bot;
-using Telegram.Bot.Extensions.Polling;
+using Telegram.Bot.Types;
 
 namespace pp_bot.Server.Services;
 
 public sealed class BotWebhookService : IHostedService
 {
 	private readonly ITelegramBotClient _botClient;
-	private readonly IUpdateHandler _updateHandler;
+	private readonly TelegramBotOptions _botOptions;
 
-	public BotWebhookService(ITelegramBotClient botClient, IUpdateHandler updateHandler)
+	public BotWebhookService(ITelegramBotClient botClient,
+		IOptions<TelegramBotOptions> botOptions)
 	{
 		_botClient = botClient;
-		_updateHandler = updateHandler;
+		_botOptions = botOptions.Value;
+
+		if (_botOptions.WebhookOptions == null)
+			throw new Exception("Webhook options are null");
 	}
 	
 	public async Task StartAsync(CancellationToken cancellationToken)
 	{
-		var webhookInfo = await _botClient.GetWebhookInfoAsync(cancellationToken);
+		WebhookInfo webhookInfo = await _botClient.GetWebhookInfoAsync(cancellationToken);
 		
 		if (!string.IsNullOrEmpty(webhookInfo.Url))
 		{
@@ -27,12 +32,12 @@ public sealed class BotWebhookService : IHostedService
 		}
 		
 		// Registering a new webhook
-		await _botClient.SetWebhookAsync("", cancellationToken: cancellationToken);
+		var url = $"{_botOptions.WebhookOptions!.BaseUrl.TrimEnd('/')}/webhook/v1";
+		await _botClient.SetWebhookAsync(url, cancellationToken: cancellationToken);
 	}
 
 	public async Task StopAsync(CancellationToken cancellationToken)
 	{
-		
+		await _botClient.DeleteWebhookAsync(cancellationToken: cancellationToken);
 	}
 }
-#endif

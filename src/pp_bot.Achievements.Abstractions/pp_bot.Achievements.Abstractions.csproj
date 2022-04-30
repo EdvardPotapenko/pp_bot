@@ -7,8 +7,6 @@
         <LangVersion>10.0</LangVersion>
         <RootNamespace>pp_bot.Achievements</RootNamespace>
         <NoWarn>CS8618</NoWarn>
-        <Configurations>Debug;Release;Webhook</Configurations>
-        <Platforms>AnyCPU;x86;x64</Platforms>
     </PropertyGroup>
 
     <ItemGroup>

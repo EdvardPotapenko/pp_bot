@@ -4,8 +4,6 @@
     <ProjectVersion>2.1</ProjectVersion>
     <DockerTargetOS>Linux</DockerTargetOS>
     <ProjectGuid>916e5a96-8927-4e0e-906e-5eea8a1484e1</ProjectGuid>
-    <Configurations>Debug;Release;Webhook</Configurations>
-    <Platforms>AnyCPU;x86;x64</Platforms>
   </PropertyGroup>
   <ItemGroup>
     <None Include="docker-compose.override.yml">

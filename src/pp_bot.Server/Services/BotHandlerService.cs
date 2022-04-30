@@ -1,7 +1,7 @@
-﻿#if POLLING
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 using Telegram.Bot;
 using Telegram.Bot.Extensions.Polling;
+using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
 namespace pp_bot.Server.Services;
@@ -19,12 +19,17 @@ public sealed class BotHandlerService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        await _client.ReceiveAsync(_updateHandler,
+        var updateReceiver = new QueuedUpdateReceiver(_client,
             new ReceiverOptions
             {
                 AllowedUpdates = new[] { UpdateType.Message }
             },
-            stoppingToken);
+            async (exception, cancellationToken) =>
+                await _updateHandler.HandleErrorAsync(_client, exception, cancellationToken));
+        
+        await foreach (Update update in updateReceiver)
+        {
+            await _updateHandler.HandleUpdateAsync(_client, update, stoppingToken);
+        }
     }
 }
-#endif
